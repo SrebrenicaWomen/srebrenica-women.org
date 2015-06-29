@@ -322,7 +322,7 @@ function exhibition_content_get_portrait_navigation() {
     ->propertyCondition('status', NODE_PUBLISHED)
     //->propertyCondition('promote', NODE_PROMOTED)
     ->fieldCondition('field_visual_purpose', 'value', 'featured')
-    ->range(0, 20);
+    ->range(0, 200);
 
   $result = $query->execute();
 
