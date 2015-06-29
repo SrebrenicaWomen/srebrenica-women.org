@@ -13,7 +13,7 @@
     ?>
   </div>
   <div class="intro blurb">
-    <a href="/"><h1><?php print t(variable_get('site_name', '')); ?></h1></a>
+    <h1><?php print l(t(variable_get('site_name', 'Srebrenica Women')), '<front>'); ?></h1>
     <p><?php print t("We are 12 women from Srebrenica using photography to talk about our personal life in Bosnia nowadays:"); ?>
     <h2><i>Our View</i>, our <a href="http://www.instagram.com/everydaysrebrenica">#EVERYDAYSREBRENICA</a></h2>
   </div>
