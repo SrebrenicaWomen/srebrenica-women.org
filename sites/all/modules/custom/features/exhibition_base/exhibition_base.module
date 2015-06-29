@@ -48,8 +48,9 @@ function exhibition_base_url_outbound_alter(&$path, &$options, $original_path) {
   // Workaround for a strange and un-clarified bug or misconfiguration where outgoing links not explicitely set to a
   // language are directed to the wrong language due to $GLOBALS['language_url'] having been initialized with that wrong
   // language (=default language?) supposedly somewhere during language_initialize.
-  if (!isset($options['language'])) {
+// Not necessary since this seems to have been a language domain mis-configuration issue.
+//  if (!isset($options['language'])) {
 //    $options['language'] = $GLOBALS['language'];
-  }
+//  }
 }
 
