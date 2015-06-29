@@ -225,7 +225,7 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
     // Third, add all the contents for that time epoch.
     ksort($visuals);
     foreach($visuals as $visual) {
-      $render = $render = entity_view('node', array($visual), 'detail');
+      $render = entity_view('node', array($visual), 'detail');
       $build[$time][] = $render;
     }
   }
