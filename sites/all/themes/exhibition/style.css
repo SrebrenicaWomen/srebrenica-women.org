@@ -328,10 +328,10 @@ a {
 /*     T E A S E R S          */
 
 .viewmode-teaser figure {
-    opacity: 0.75;
-    -webkit-filter: grayscale(75%);
+    opacity: 1;
+    -webkit-filter: grayscale(100%);
     filter: gray;
-    filter: grayscale(75%);
+    filter: grayscale(100%);
 }
 .viewmode-teaser figure:hover,
 .viewmode-teaser figure.cs-hover {
