@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * Implementation of hook_update_N().
+ *
+ * Activate environment_indicator.module.
+ */
+function exhibition_base_update_7001() {
+  module_enable(array('environment_indicator'));
+}
+
+
+/**
+ * Implementation of hook_update_N().
+ *
+ * Activate jquery_update.module.
+ */
+function exhibition_base_update_7002() {
+  module_enable(array('jquery_update'));
+}
+
+
+// END OF FILE marker.

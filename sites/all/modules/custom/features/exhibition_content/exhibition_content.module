@@ -1,0 +1,358 @@
+<?php
+/**
+ * @file
+ * Code for the exhibition_content feature.
+ */
+
+include_once 'exhibition_content.features.inc';
+
+
+/**
+ * Implementation of hook_clone_node_alter().
+ */
+function exhibition_content_clone_node_alter(&$node, $context) {
+  // Unset those field that should probably be changed when cloning a 'visual'.
+  if ('visual' == $context['original_node']->type) {
+    unset($node->field_visual_caption);
+    unset($node->field_image_file);
+    unset($node->field_video_file);
+    unset($node->field_tag);
+  }
+}
+
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function exhibition_content_form_alter(&$form, &$form_state, $form_id) {
+  if (isset($form['field_visual_caption'])) {
+    // Display input elements for all language version of field_visual_caption.
+    exhibition_content_form_display_field_multilingual($form, 'field_visual_caption');
+  }
+
+  if (isset($form['field_embed_code']) && count(array_intersect($GLOBALS['user']->roles, array('administrator', 'chiefeditor')))) {
+    $form['field_embed_code']['#access'] = FALSE;
+  }
+
+  if ('visual_node_form' == $form_id) {
+    // Make a 'visual' node's title non-required (auto-filled in hook_entity_presave.
+    $form['title']['#required'] = FALSE;
+    // If this is a clone being made, empty the fields that should probably change.
+    if (isset($form['clone_from_original_nid'])) {
+    }
+  }
+
+  if ('portrait_node_form' == $form_id) {
+    // Disable a "portrait" node's 'visuals' field from being edited.
+    $form['field_visual']['#disabled'] = TRUE;
+  }
+}
+
+
+/**
+ * Implementation of hook_views_bulk_operations_form_alter().
+ */
+function exhibition_content_views_bulk_operations_form_alter(&$form, &$form_state, $vbo) {
+  if($form['#form_id'] == 'views_form_admin_content_page'){
+    //    unset($form['select']['#title']);
+    //    $form['select']['#type'] = 'container';
+    $form['select']['#collapsible'] = TRUE;
+    $form['select']['#collapsed'] = TRUE;
+  }
+}
+
+
+/**
+ * Offer form element for all languages for a given text field in a given form.
+ */
+function exhibition_content_form_display_field_multilingual(&$form, $field_name) {
+  $languages = language_list();
+  $node = $form['#node'];
+  $field = &$form[$field_name];
+  $field_element = element_children($field);
+  $field_element = array_pop($field_element);
+  $field_element = $field[$field_element];
+  $el_key = 'multilang:' . $field_name;
+  $el = array(
+    '#type' => 'container',
+    '#weight' => $field['#weight'],
+    '#description' => $field_element['#description'],
+    '#attributes' => $field['#attributes'],
+    '#field_name' => $field_name,
+  );
+  $el['#attributes']['class'][] = 'multilang-elements';
+
+  $form['#group_children'][$el_key] = $form['#group_children'][$field_name];
+
+  foreach ($languages as $lang_key => $language) {
+    if ($language->enabled) {
+      $el_sub_key = $el_key . ':' . $lang_key;
+      $el[$el_sub_key] = array(
+        '#type' => $field_element[0]['value']['#type'],
+        '#language' => $lang_key,
+        '#title' => t($language->name),
+        '#attributes' => array('class' => array('multilang-element')),
+        '#default_value' => isset($node->{$field_name}[$lang_key]) ? $node->{$field_name}[$lang_key][0]['value'] : '',
+      );
+      if (!isset($el['#title'])) {
+        $el['#title'] = $field_element['#title'];
+        $el[$el_sub_key]['#title'] = $el['#title'] . ': ' . $el[$el_sub_key]['#title'];
+      }
+    }
+  }
+
+  $el['description'] = array('#markup' => '<div>' . $field_element['#description'] . '</div>');
+  $form[$el_key] = $el;
+  $form['#multilang_elements'][] = $el_key;
+  $field['#access'] = FALSE;
+}
+
+
+/**
+ * Implementation of hook_node_submit().
+ *
+ * Transfer Multi-lang-element values to the corresponding fields.
+ */
+function exhibition_content_node_submit($node, $form, &$form_state) {
+  $languages = language_list();
+  if (isset($form['#multilang_elements'])) {
+    foreach($form['#multilang_elements'] as $el_key) {
+      $el = $form[$el_key];
+      $field_name = $el['#field_name'];
+      foreach ($languages as $lang_key => $language) {
+        if ($language->enabled) {
+          $el_sub_key = $el_key . ':' . $lang_key;
+          $value = $form_state['values'][$el_sub_key];
+          $value = check_plain($value);
+          $node->{$field_name}[$lang_key][0]['value'] = $value;
+          if (trim($value) && !isset($node->translations->data[$lang_key])) {
+            $node->translations->data[$lang_key] = array(
+              'entity_type' => 'node',
+              'entity_id' => $node->nid,
+              'revision_id' => $node->vid,
+              'language' => $lang_key,
+              'source' => $node->translations->original,
+              'uid' => $GLOBALS['user']->uid,
+              'status' => 1,
+              'translate' => 0,
+              'created' => REQUEST_TIME,
+              'changed' => REQUEST_TIME,
+            );
+          }
+        }
+      }
+    }
+  }
+}
+
+
+/**
+ * Implementation of hook_entity_presave().
+ */
+function exhibition_content_entity_presave($entity, $type) {
+  // Auto-Fill/-Update automated title for 'visual' nodes.
+  if (('node' == $type) && ('visual' == $entity->type) && (('' == trim($entity->title)) || ('@' == $entity->title[0]) || ('Clone of' == substr($entity->title, 0, 8)) )) {
+    $e = entity_metadata_wrapper('node', $entity);
+    $title = array();
+    $title[] = $entity->field_parent_content[LANGUAGE_NONE] ? $e->field_parent_content->title->value() : NULL;
+    $title[] = $entity->field_epoch[LANGUAGE_NONE]          ? $e->field_epoch->name->value() : NULL;
+    $title[] = $entity->field_visual_purpose[LANGUAGE_NONE] ? $e->field_visual_purpose->value() : NULL;
+    $title[] = $entity->field_image_file[LANGUAGE_NONE]     ? $e->field_image_file->file->name->value() : NULL;
+    $title[] = $entity->field_video_file[LANGUAGE_NONE]     ? $e->field_video_file->file->name->value() : NULL;
+    //$title[] = $e->field_priority->value();
+    //$entity->title = '@' . trim(implode(' | ', $title));
+    $entity->title = '@' . array_reduce($title, function($carry, $item) {
+        if ($item) {
+          $carry = $carry ? $carry . ' | ' : '';
+          $carry .= $item;
+        }
+        return $carry;
+      });
+  }
+}
+
+
+/**
+ * Implementation of hook_entity_view().
+ */
+function exhibition_content_entity_view($entity, $type, $view_mode, $langcode) {
+  $build = &$entity->content;
+  $entity_type = $type;
+  $bundle = ('node' == $type) ? $entity->type : NULL;
+
+  if (('node' == $entity_type) && ('portrait' == $bundle)) {
+    // Construct the portrait teaser from its feature visuals.
+    if ('full' == $view_mode) {
+      $build += exhibition_content_prepare_portrait_full_view($entity);
+    }
+    // Construct the portrait full view from its visuals and fields.
+    else {
+    }
+  }
+}
+
+
+/**
+ * Prepares render array for a given portrait's full view.
+ */
+function exhibition_content_prepare_portrait_full_view($portrait) {
+  $build = array();
+
+  foreach(exhibition_content_get_sub_content($portrait->nid, true) as $time => $visuals) {
+    // First, add featured main visual.
+    if (isset($visuals['featured'])) {
+      $build['feature-'.$time] = $visuals['featured']['render'];
+      unset($visuals['featured']);
+    }
+
+    // Add container for the details of the epoch.
+    $build[$time] = array(
+      '#type' => 'container',
+      '#attributes' => array('class' => array('details', 'clearfix')),
+    );
+    // Second, add tile for the time epoch.
+    $epoch = taxonomy_term_load($time);
+    if (!empty($epoch)) {
+      $build[$time][] = array(
+        '#theme' => 'tile',
+        '#tile_style' => 0,
+        '#tile_class' => 'info-tile',
+        '#tile_title' => $epoch->name,
+        '#tile_visual' => array('#markup' => ' '),
+      );
+    }
+
+    // Third, add all the contents for that time epoch.
+    ksort($visuals);
+    foreach($visuals as $visual) {
+      $render = $render = entity_view('node', array($visual), 'detail');
+      $build[$time][] = $render;
+    }
+  }
+  return $build;
+}
+
+
+/**
+ * Get the 'visual' type nodes associated with a given parent node id.
+ *
+ * Grouped by epoch, if $grouped is true.
+ * Ordered by priority.
+ */
+function exhibition_content_get_sub_content($parent_nid) {
+  $build = array();
+  $query = new EntityFieldQuery();
+
+  $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->fieldCondition('field_parent_content', 'target_id', $parent_nid)
+    ->range(0, 100);
+
+  $result = $query->execute();
+
+  if (isset($result['node'])) {
+    $nodes = entity_load('node', array_keys($result['node']));
+    foreach($nodes as $node) {
+      $key      = @$node->field_epoch[LANGUAGE_NONE][0]['tid'];
+      $purpose  = @$node->field_visual_purpose[LANGUAGE_NONE][0]['value'];
+      if ('featured' == $purpose) {
+        $sub_key = 'featured';
+        $render = entity_view('node', array($node), 'feature');
+        $build[$key][$sub_key] = array('entity' => $node, 'render' => $render);
+      }
+      $sub_key = @$node->field_priority[LANGUAGE_NONE][0]['value'];
+      if (isset($build[$key][$sub_key])) {
+        $sub_key .= '-2';
+      }
+      $build[$key][$sub_key] = $node;
+    }
+  }
+
+  return $build;
+}
+
+
+/**
+ * Get the overview page content
+ *
+ */
+function exhibition_content_get_overview_content($pager = 0) {
+  $main_featured_visuals = array();
+  $build = array();
+  $query = new EntityFieldQuery();
+
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', array('visual'))
+    ->propertyCondition('status', NODE_PUBLISHED)
+  //->propertyCondition('promote', NODE_PROMOTED)
+    //->fieldCondition('field_parent_content', 'target_id', $parent_nid)
+    //->fieldOrderBy('field_priority', 'value', 'ASC') // Side-effect: Excludes non-prioritized content.
+    ->range($pager, 1000);
+
+  $result = $query->execute();
+
+  if (isset($result['node'])) {
+    $nodes = entity_load('node', array_keys($result['node']));
+    foreach($nodes as $node) {
+      $purpose  = @$node->field_visual_purpose[LANGUAGE_NONE][0]['value'];
+      $parent = isset($node->field_parent_content[LANGUAGE_NONE][0]['target_id']) ? $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] : 0;
+      if (!isset($main_featured_visuals[$parent]) &&  ('featured' == $purpose)) {
+        $main_featured_visuals[$parent] = TRUE;
+        $node->main_featured_visual = TRUE;
+      }
+      $render = entity_view('node', array($node), 'teaser');
+      $build[] = $render;
+    }
+  }
+
+  return $build;
+}
+
+
+/**
+ * Get the overview page content
+ *
+ */
+function exhibition_content_get_portrait_navigation() {
+  $build = array();
+  $query = new EntityFieldQuery();
+
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', array('visual'))
+    ->propertyCondition('status', NODE_PUBLISHED)
+    //->propertyCondition('promote', NODE_PROMOTED)
+    ->fieldCondition('field_visual_purpose', 'value', 'featured')
+    ->range(0, 20);
+
+  $result = $query->execute();
+
+  if (isset($result['node'])) {
+    $nodes = entity_load('node', array_keys($result['node']));
+    foreach($nodes as $node) {
+      $parent = isset($node->field_parent_content[LANGUAGE_NONE][0]['target_id']) ? $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] : 0;
+      if (!isset($build[$parent]) && isset($node->field_image_file[LANGUAGE_NONE])) {
+        $file = $node->field_image_file[LANGUAGE_NONE][0]['uri'];
+        $build[$parent] = array(
+          '#theme' => 'image_formatter',
+          '#image_style' => 'teaser_square_tiny',
+          '#item' => array(
+            'uri' => $file,
+          ),
+          '#path' => array(
+            'path' => 'node/' . $parent,
+            'options' => array(
+              'attributes' => array(
+                'title' => '',
+              ),
+            ),
+          ),
+        );
+
+      }
+    }
+  }
+  return $build;
+}
+
+
+// END OF FILE marker.

@@ -1,0 +1,104 @@
+
+
+
+/*
+
+    C O N T E N T   D I S P L A Y
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+    C O N T E N T   E D I T I N G
+
+*/
+
+
+
+
+/* Multi-lang field elements */
+
+.multilang-elements {
+    margin-bottom: 1em;
+}
+
+.multilang-elements .form-item {
+    width: 24%;
+    display: inline-block;
+    padding: 0px;
+}
+
+
+/* Manual crop optimizations */
+
+
+.manualcrop-inline {
+    background-color: #eee;
+}
+
+
+.manualcrop-thumblist {
+    background-color: #fafafa;
+}
+.manualcrop-style-thumb {
+    text-align: center;
+}
+.manualcrop-style-thumb strong {
+    font-size: 85%;
+    font-weight: normal;
+    color: #888;
+    height: 4em;
+}
+
+
+.manualcrop-inline {
+    width: 1200px !important;
+}
+.manualcrop-inline>div {
+    display: inline-block;
+    width: 700px;
+}
+.manualcrop-inline div.manualcrop-image-holder {
+    width: 400px;
+}
+
+
+.manualcrop-inline .manualcrop-instantpreview,
+.manualcrop-inline .manualcrop-details,
+.manualcrop-inline .manualcrop-buttons {
+    float: none;
+    display: inline-block;
+}
+.manualcrop-inline .manualcrop-instantpreview {
+    width: 150px !important;
+    height: 150px !important;
+}
+.manualcrop-inline .manualcrop-details {
+    font-size: 85%;
+}
+.manualcrop-buttons {
+    clear: both;
+    width: 100% !important;
+    margin-top: 0.5em;
+}
+

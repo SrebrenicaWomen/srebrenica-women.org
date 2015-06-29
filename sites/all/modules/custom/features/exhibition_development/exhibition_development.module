@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the exhibition_development feature.
+ */
+
+include_once 'exhibition_development.features.inc';

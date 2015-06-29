@@ -1,0 +1,55 @@
+<?php
+/**
+ * @file
+ * Code for the exhibition_base feature.
+ */
+
+include_once 'exhibition_base.features.inc';
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function exhibition_base_menu() {
+  $items = array(
+    'overview' => array(
+      'page callback' => 'exhibition_base_menu_overview',
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    ),
+  );
+  return $items;
+}
+
+
+/**
+ * Retruns the frontpage as renderable array.
+ *
+ * @return array
+ */
+function exhibition_base_menu_overview() {
+  $a = array();
+
+  $a['container'] = exhibition_content_get_overview_content();
+  $a['container']['#type'] = 'container';
+  $a['container']['#attributes'] = array('class' => 'tiles');
+
+  $a[] = array('#type' => 'markup', '#markup' => '');
+  return $a;
+}
+
+
+/**
+ * Implementation of hook_url_outbound_alter().
+ *
+ */
+function exhibition_base_url_outbound_alter(&$path, &$options, $original_path) {
+  // Set language for a link explicitly to the current language (if not already set elsewhere).
+  // Workaround for a strange and un-clarified bug or misconfiguration where outgoing links not explicitely set to a
+  // language are directed to the wrong language due to $GLOBALS['language_url'] having been initialized with that wrong
+  // language (=default language?) supposedly somewhere during language_initialize.
+  if (!isset($options['language'])) {
+//    $options['language'] = $GLOBALS['language'];
+  }
+}
+

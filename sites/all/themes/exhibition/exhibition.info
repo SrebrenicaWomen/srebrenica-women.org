@@ -1,0 +1,25 @@
+name = Exhibition
+description = A project specific photo exhibition theme
+package = Core
+version = VERSION
+core = 7.x
+
+; Remove once the ties to seven are cut:
+stylesheets[screen][] = seven_takeover/seven_reset.css
+;stylesheets[screen][] = seven_takeover/seven_style.css
+
+
+stylesheets[screen][] = style.css
+
+scripts[] = js/modernizr.custom.js
+scripts[] = js/jquery.unveil.js
+scripts[] = js/packery.pkgd.min.js
+scripts[] = js/exhibition.js
+
+regions[content] = Content
+regions[help] = Help
+regions[page_top] = Page top
+regions[page_bottom] = Page bottom
+regions[sidebar_first] = First sidebar
+regions_hidden[] = sidebar_first
+
