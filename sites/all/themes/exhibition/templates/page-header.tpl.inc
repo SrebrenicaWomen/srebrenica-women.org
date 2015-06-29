@@ -10,6 +10,6 @@
     <h2><i>Our View</i>, our <a href="http://www.instagram.com/everydaysrebrenica">#EVERYDAYSREBRENICA</a></h2>
   </div>
   <div class="portrait-navigation">
-    <?php $thumbs = exhibition_content_get_portrait_navigation(); print render($thumbs); ?>
+    <?php if (function_exists('exhibition_content_get_portrait_navigation')) { $thumbs = exhibition_content_get_portrait_navigation(); print render($thumbs); } ?>
   </div>
 </div>
