@@ -159,7 +159,7 @@ function exhibition_image($variables) {
     if (isset($variables['style_name']) && ('feature_wide' == $variables['style_name'])) { $variables['lazy-load'] = FALSE; }
   }
   if ($variables['lazy-load']) {
-    $attributes ['src'] = '';
+    $attributes ['src'] = base_path() . drupal_get_path('theme', 'exhibition') . '/images/empty.gif';
     // Add marker for lazy loading waiting styles.
     $attributes['class'][] = 'lazy-waiting';
     // Try to find suitable retina file.
