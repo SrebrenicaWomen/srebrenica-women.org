@@ -1207,7 +1207,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
       ),
       'detail' => array(
         'label' => 'hidden',
-        'module' => 'colorbox',
+        'module' => 'image',
         'settings' => array(
           'colorbox_caption' => 'custom',
           'colorbox_caption_custom' => '[node:field-visual-caption] ([node:field_epoch]) [node:field_source]',
@@ -1217,13 +1217,15 @@ Only the administrator and chiefeditor roles are able to use this field for secu
           'colorbox_multivalue_index' => NULL,
           'colorbox_node_style' => 'teaser_original',
           'colorbox_node_style_first' => '',
+          'image_link' => '',
+          'image_style' => '',
         ),
-        'type' => 'colorbox',
+        'type' => 'image',
         'weight' => 0,
       ),
       'detail_square' => array(
         'label' => 'hidden',
-        'module' => 'colorbox',
+        'module' => 'image',
         'settings' => array(
           'colorbox_caption' => 'custom',
           'colorbox_caption_custom' => '[node:field-visual-caption] ([node:field_epoch]) [node:field_source]',
@@ -1233,8 +1235,10 @@ Only the administrator and chiefeditor roles are able to use this field for secu
           'colorbox_multivalue_index' => NULL,
           'colorbox_node_style' => 'teaser_square',
           'colorbox_node_style_first' => '',
+          'image_link' => '',
+          'image_style' => '',
         ),
-        'type' => 'colorbox',
+        'type' => 'image',
         'weight' => 0,
       ),
       'feature' => array(

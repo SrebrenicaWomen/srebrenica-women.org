@@ -1,7 +1,6 @@
 name = exhibition_content
 core = 7.x
 package = Features
-dependencies[] = colorbox
 dependencies[] = ctools
 dependencies[] = entityreference
 dependencies[] = features
