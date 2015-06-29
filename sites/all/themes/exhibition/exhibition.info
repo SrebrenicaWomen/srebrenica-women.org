@@ -9,14 +9,14 @@ stylesheets[screen][] = seven_takeover/seven_reset.css
 ;stylesheets[screen][] = seven_takeover/seven_style.css
 
 
-stylesheets[screen][] = swipebox/css/swipebox.min.css
+stylesheets[screen][] = swipebox/swipebox.css
 stylesheets[screen][] = style.css
 
 scripts[] = js/modernizr.custom.js
 scripts[] = js/jquery.unveil.js
 scripts[] = js/packery.pkgd.min.js
 scripts[] = js/exhibition.js
-scripts[] = swipebox/js/jquery.swipebox.min.js
+scripts[] = swipebox/jquery.swipebox.min.js
 
 regions[content] = Content
 regions[help] = Help
