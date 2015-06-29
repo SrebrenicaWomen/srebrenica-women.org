@@ -223,6 +223,7 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
       // First, add featured main visual.
       // Either use the one for this epoch, or, if that is empty, get the most recent one not used yet.
       $feature_visual = NULL;
+      $feature_visual_caption = NULL;
       if (isset($feature_visuals[$epoch_tid])) {
         $feature_visual = $feature_visuals[$epoch_tid];
       } else if (!$epoch_counter) {
@@ -233,6 +234,8 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
         }
       }
       if (!empty($feature_visual)) {
+        $feature_visual_caption = reset($feature_visual['render']['node']);
+        $feature_visual_caption = (isset($feature_visual_caption['field_visual_caption']) ? strip_tags($feature_visual_caption['field_visual_caption'][0]['#markup']) : '');
         $build['feature-'.$epoch_tid] = $feature_visual['render'];
       }
 
@@ -242,13 +245,15 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
         '#attributes' => array('class' => array('details', 'clearfix')),
       );
       // Second, add tile for the time epoch.
-      $build[$epoch_tid][] = array(
+      $epoch_tile = array(
         '#theme' => 'tile',
         '#tile_style' => 0,
         '#tile_class' => 'info-tile',
         '#tile_title' => $epoch_term->name,
+        '#tile_caption' => $feature_visual_caption,
         '#tile_visual' => array('#markup' => ' '),
       );
+      $build[$epoch_tid][] = $epoch_tile;
 
       // Third, add all the contents for that time epoch.
       ksort($visuals);
