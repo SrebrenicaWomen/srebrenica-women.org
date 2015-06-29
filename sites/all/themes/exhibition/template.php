@@ -53,7 +53,8 @@ function exhibition_preprocess_node(&$vars, $hook) {
       $parent = node_load($node->field_parent_content[LANGUAGE_NONE][0]['target_id']);
       $vars['title'] = $parent->title;
     }
-    $vars['tile_caption'] = isset($vars['content']['field_visual_caption']) ? $vars['content']['field_visual_caption'][0]['#markup'] : NULL;
+    $image_caption = isset($vars['content']['field_visual_caption']) ? strip_tags($vars['content']['field_visual_caption'][0]['#markup']) : '';
+    $vars['tile_caption'] = $image_caption;
     $vars['tile_visual']  = $vars['content']['field_image_file'];
     $vars['tile_title']   = $vars['title'];
     if ('teaser' == $view_mode) {
@@ -71,6 +72,11 @@ function exhibition_preprocess_node(&$vars, $hook) {
     }
     if ('detail' == $view_mode) {
       unset($vars['tile_title']);
+      // Swipebox the image.
+      $image_path = $node->field_image_file[LANGUAGE_NONE][0]['uri'];
+      $image_full_path = image_style_url('full', $image_path);
+      $image_tag = theme('image_style', array('style_name' => 'full', 'path' => $image_path, 'alt' => $image_caption));
+      $vars['tile_visual'] = '<a href="' . $image_full_path . '" class="swipebox" title="' . $image_caption . '">' . $image_tag . '</a>';
     }
 
     // For teaser view mode, use tile style 3 (title/caption slide up on hover).
