@@ -64,7 +64,7 @@ function exhibition_preprocess_node(&$vars, $hook) {
       $overlay_caption .= $image_caption;
     }
 
-    $vars['tile_caption'] = truncate_utf8($image_caption, 100, TRUE, TRUE, 20);
+    $vars['tile_caption'] = $image_caption;
     $vars['tile_visual']  = $vars['content']['field_image_file'];
     $vars['tile_title']   = $vars['title'];
     if ('teaser' == $view_mode) {
@@ -82,6 +82,8 @@ function exhibition_preprocess_node(&$vars, $hook) {
     }
     if ('detail' == $view_mode) {
       unset($vars['tile_title']);
+      // Truncate the hover caption in length.
+      $vars['tile_caption'] = truncate_utf8($vars['tile_caption'], 100, TRUE, TRUE, 20);
       // Swipebox the image.
       $image_path = $node->field_image_file[LANGUAGE_NONE][0]['uri'];
       $image_full_path = image_style_url('full', $image_path);
