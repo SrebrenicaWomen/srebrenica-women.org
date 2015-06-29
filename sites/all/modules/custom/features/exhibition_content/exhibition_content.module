@@ -198,35 +198,65 @@ function exhibition_content_entity_view($entity, $type, $view_mode, $langcode) {
 function exhibition_content_prepare_portrait_full_view($portrait) {
   $build = array();
 
-  foreach(exhibition_content_get_sub_content($portrait->nid, true) as $time => $visuals) {
-    // First, add featured main visual.
-    if (isset($visuals['featured'])) {
-      $build['feature-'.$time] = $visuals['featured']['render'];
-      unset($visuals['featured']);
-    }
+  $all_visuals = exhibition_content_get_sub_content($portrait->nid, true);
 
-    // Add container for the details of the epoch.
-    $build[$time] = array(
-      '#type' => 'container',
-      '#attributes' => array('class' => array('details', 'clearfix')),
-    );
-    // Second, add tile for the time epoch.
-    $epoch = taxonomy_term_load($time);
-    if (!empty($epoch)) {
-      $build[$time][] = array(
+  // Get epoch terms (i.e. correctly ordered by their weight+name).
+  $epoch_vocabulary = taxonomy_vocabulary_machine_name_load('epoch');
+  $epochs = taxonomy_term_load_multiple(array(), array('vid' => $epoch_vocabulary->vid));
+
+  // Determine feature visual for each epoch, so we can always display the latest one.
+  $feature_visuals = array();
+  foreach($epochs as $epoch_tid => $epoch_term) {
+    if (isset($all_visuals[$epoch_tid]['featured'])) {
+      $feature_visuals[$epoch_tid] = $all_visuals[$epoch_tid]['featured'];
+      unset($all_visuals[$epoch_tid]['featured']);
+    }
+  }
+
+  // Loop through all epochs and assemble/extend build array with the visuals for that epoch.
+  $epoch_counter = 0;
+  foreach($epochs as $epoch_tid => $epoch_term) {
+    if (!empty($all_visuals[$epoch_tid]))
+    {
+      $visuals = $all_visuals[$epoch_tid];
+
+      // First, add featured main visual.
+      // Either use the one for this epoch, or, if that is empty, get the most recent one not used yet.
+      $feature_visual = NULL;
+      if (isset($feature_visuals[$epoch_tid])) {
+        $feature_visual = $feature_visuals[$epoch_tid];
+      } else if (!$epoch_counter) {
+        list($feature_visual_key) = array_keys($feature_visuals);
+        if (!empty($feature_visual_key)) {
+          $feature_visual = $feature_visuals[$feature_visual_key];
+          unset($feature_visuals[$feature_visual_key]);
+        }
+      }
+      if (!empty($feature_visual)) {
+        $build['feature-'.$epoch_tid] = $feature_visual['render'];
+      }
+
+      // Add container for the details of the epoch.
+      $build[$epoch_tid] = array(
+        '#type' => 'container',
+        '#attributes' => array('class' => array('details', 'clearfix')),
+      );
+      // Second, add tile for the time epoch.
+      $build[$epoch_tid][] = array(
         '#theme' => 'tile',
         '#tile_style' => 0,
         '#tile_class' => 'info-tile',
-        '#tile_title' => $epoch->name,
+        '#tile_title' => $epoch_term->name,
         '#tile_visual' => array('#markup' => ' '),
       );
-    }
 
-    // Third, add all the contents for that time epoch.
-    ksort($visuals);
-    foreach($visuals as $visual) {
-      $render = entity_view('node', array($visual), 'detail');
-      $build[$time][] = $render;
+      // Third, add all the contents for that time epoch.
+      ksort($visuals);
+      foreach($visuals as $visual) {
+        $render = entity_view('node', array($visual), 'detail');
+        $build[$epoch_tid][] = $render;
+      }
+      $epoch_counter++;
     }
   }
   return $build;
