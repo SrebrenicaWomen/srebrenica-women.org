@@ -1,8 +1,16 @@
 <div class="page-header">
   <div class="language-switcher">
-    <a href="/"   xhref="http://www.srebrenica-women.org"  target="_parent"><?php print t('EN'); ?></a>
-    <a href="/de" xhref="http://www.srebrenica-frauen.org" target="_parent"><?php print t('DE'); ?></a>
-    <a href="/bs" xhref="http://www.srebrenica-zene.org"   target="_parent"><?php print t('BS'); ?></a>
+    <?php
+      $lang_list = array();
+      $languages = language_list('enabled');
+      $languages = $languages[TRUE];
+      foreach($languages as $lang_key => $lang_object) {
+        $lang_name = strtoupper($lang_key);
+        $lang_link = l($lang_name, current_path(), array('language' => $lang_object));
+        $lang_list[] = $lang_link;
+      }
+      print theme('item_list', array('items' => $lang_list))
+    ?>
   </div>
   <div class="intro blurb">
     <a href="/"><h1><?php print t(variable_get('site_name', '')); ?></h1></a>
