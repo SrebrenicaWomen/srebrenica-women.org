@@ -20,4 +20,15 @@ function exhibition_base_update_7002() {
 }
 
 
+/**
+ * Implementation of hook_update_N().
+ *
+ * Deactivate colorbox.module.
+ */
+function exhibition_base_update_7003() {
+  module_disable(array('colorbox'));
+  module_enable(array('exhibition_content'));
+}
+
+
 // END OF FILE marker.
