@@ -305,34 +305,22 @@ a {
 
 /*     S W i P E B O X        */
 
-#swipebox-top-bar {
+#swipebox-caption {
+    height: auto;
+
     font-size: 20px;
     line-height:32px;
-    /*
-    color: #fff!important;
-    font-family: Helvetica,Arial,sans-serif;
-    */
-}
-#swipebox-top-bar {
-    background: none;
-    /*
-    text-shadow: 1px 1px 1px #000;
-    opacity: .95;
-    */
-}
-#swipebox-title {
-    padding-top: 1em;
-    display: block;
-    width: 95%;
     text-align: center;
+
+    text-shadow: 0 1px 0 black;
+
     background:
         linear-gradient(
-            to top,
+            to bottom,
             rgba(0, 0, 0, 0),
             rgba(0, 0, 0, 0.35),
             rgba(0, 0, 0, 0.75)
         );
-
 }
 
 

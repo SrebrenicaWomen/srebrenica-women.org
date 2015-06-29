@@ -53,8 +53,18 @@ function exhibition_preprocess_node(&$vars, $hook) {
       $parent = node_load($node->field_parent_content[LANGUAGE_NONE][0]['target_id']);
       $vars['title'] = $parent->title;
     }
+
+    $epoch_name = isset($vars['content']['field_epoch']) ? strip_tags($vars['content']['field_epoch'][0]['#markup']) : '';
     $image_caption = isset($vars['content']['field_visual_caption']) ? strip_tags($vars['content']['field_visual_caption'][0]['#markup']) : '';
-    $vars['tile_caption'] = $image_caption;
+    $overlay_caption = '';
+    if (!empty($image_caption)) {
+      if ($parent) { $overlay_caption .= $parent->title . ' '; }
+      if ($epoch_name) { $overlay_caption .= '(' . $epoch_name . ') '; }
+      if (!empty($overlay_caption)) { $overlay_caption .= ' - '; }
+      $overlay_caption .= $image_caption;
+    }
+
+    $vars['tile_caption'] = truncate_utf8($image_caption, 100, TRUE, TRUE, 20);
     $vars['tile_visual']  = $vars['content']['field_image_file'];
     $vars['tile_title']   = $vars['title'];
     if ('teaser' == $view_mode) {
@@ -76,7 +86,7 @@ function exhibition_preprocess_node(&$vars, $hook) {
       $image_path = $node->field_image_file[LANGUAGE_NONE][0]['uri'];
       $image_full_path = image_style_url('full', $image_path);
       $image_tag = theme('image_style', array('style_name' => 'full', 'path' => $image_path, 'alt' => $image_caption));
-      $vars['tile_visual'] = '<a href="' . $image_full_path . '" class="swipebox" title="' . $image_caption . '">' . $image_tag . '</a>';
+      $vars['tile_visual'] = '<a href="' . $image_full_path . '" class="swipebox" title="' . $overlay_caption . '">' . $image_tag . '</a>';
     }
 
     // For teaser view mode, use tile style 3 (title/caption slide up on hover).
