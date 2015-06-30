@@ -549,70 +549,6 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     ),
   );
 
-  // Exported field_instance: 'node-portrait-field_feed_url'
-  $field_instances['node-portrait-field_feed_url'] = array(
-    'bundle' => 'portrait',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
-      ),
-      'detail' => array(
-        'label' => 'above',
-        'module' => 'link',
-        'settings' => array(),
-        'type' => 'link_default',
-        'weight' => 1,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_feed_url',
-    'label' => 'Feed URL',
-    'required' => 0,
-    'settings' => array(
-      'absolute_url' => 1,
-      'attributes' => array(
-        'class' => '',
-        'configurable_class' => 0,
-        'configurable_title' => 0,
-        'rel' => '',
-        'target' => 'default',
-        'title' => '',
-      ),
-      'display' => array(
-        'url_cutoff' => 80,
-      ),
-      'enable_tokens' => 1,
-      'entity_translation_sync' => FALSE,
-      'rel_remove' => 'default',
-      'title' => 'none',
-      'title_label_use_field_label' => 0,
-      'title_maxlength' => 128,
-      'title_value' => '',
-      'url' => 0,
-      'user_register_form' => FALSE,
-      'validate_url' => 1,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'link',
-      'settings' => array(),
-      'type' => 'link_field',
-      'weight' => 13,
-    ),
-  );
-
   // Exported field_instance: 'node-portrait-field_import_tag'
   $field_instances['node-portrait-field_import_tag'] = array(
     'bundle' => 'portrait',
@@ -1443,7 +1379,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'rows' => 3,
       ),
       'type' => 'text_textarea',
-      'weight' => 11,
+      'weight' => 12,
     ),
   );
 
@@ -1501,6 +1437,71 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'size' => 60,
       ),
       'type' => 'text_textfield',
+      'weight' => 11,
+    ),
+  );
+
+  // Exported field_instance: 'node-visual-field_imported_time'
+  $field_instances['node-visual-field_imported_time'] = array(
+    'bundle' => 'visual',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Unix time stamp of import of this content.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'number',
+        'settings' => array(
+          'decimal_separator' => '.',
+          'prefix_suffix' => TRUE,
+          'scale' => 0,
+          'thousand_separator' => ' ',
+        ),
+        'type' => 'number_integer',
+        'weight' => 15,
+      ),
+      'detail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'detail_square' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'feature' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_imported_time',
+    'label' => 'Imported time',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'max' => '',
+      'min' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'number',
+      'settings' => array(),
+      'type' => 'number',
       'weight' => 10,
     ),
   );
@@ -2113,7 +2114,6 @@ Only the administrator and chiefeditor roles are able to use this field for secu
   t('Caption');
   t('Data payload that had been imported.');
   t('Embed code');
-  t('Feed URL');
   t('For internal distinction only.');
   t('Has this content been imported?');
   t('Has this tag been imported?');
@@ -2123,6 +2123,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
   t('Imported');
   t('Imported ID');
   t('Imported data');
+  t('Imported time');
   t('Is this content just a test?');
   t('Lastname');
   t('Layout');
@@ -2148,6 +2149,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
 ');
   t('The visuals associated with this content. This is a redundant cross-reference, the association is primarily managed via each visuals "parent" field. You can use this to additionally sort the order of visuals on this content.');
   t('Time');
+  t('Unix time stamp of import of this content.');
   t('Video file');
   t('Visual');
 

@@ -154,9 +154,10 @@ function exhibition_content_field_group_info() {
       4 => 'field_test_content',
       5 => 'field_imported',
       6 => 'field_imported_data',
-      7 => 'title',
-      8 => 'language',
-      9 => 'field_imported_id',
+      7 => 'field_imported_id',
+      8 => 'title',
+      9 => 'language',
+      10 => 'field_imported_time',
     ),
     'format_type' => 'tab',
     'format_settings' => array(
