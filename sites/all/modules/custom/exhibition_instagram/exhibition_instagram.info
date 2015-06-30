@@ -1,0 +1,4 @@
+name = exhibition_instagram
+core = 7.x
+package = Exhibition
+dependencies[] = exhibition_content

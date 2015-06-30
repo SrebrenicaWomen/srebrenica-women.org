@@ -1,0 +1,323 @@
+<?php
+
+
+
+/**
+ * Implements hook_cron().
+ */
+//function exhibition_instagram_cron() {
+//  exhibition_instagram_fetch_media();
+//}
+
+
+/**
+ * Implements hook_cron_queue_info().
+ *
+ * Define our own "queue" item worked off by default system cron.
+ */
+function exhibition_instagram_cron_queue_info() {
+//  $queues = array(
+//    'exhibition_instagram' => array(
+//      'worker callback' => 'exhibition_instagram_fetch_all',
+//      'time' => 15, // default: 15 seconds.
+//    ),
+//  );
+//  return $queues;
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function exhibition_instagram_menu() {
+  $items = array();
+  $items['admin/content/instagram-import'] = array(
+    'title' => 'Instagram Import',
+    'description' => 'Trigger import of media from instagram',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('exhibition_instagram_import_form'),
+    'access arguments' => array('administer content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Form builder function to allow choice of which batch to be triggered.
+ */
+function exhibition_instagram_import_form() {
+  $form['description'] = array(
+    '#type' => 'markup',
+    '#markup' => t('Import media from instagram feed.'),
+  );
+  $form['batch'] = array(
+    '#type' => 'select',
+    '#title' => 'Choose batch',
+    '#options' => array(
+      'exhibition_instagram_1' => t('batch 1 - 1000 operations, each loading the same node'),
+      'exhibition_instagram_2' => t('batch 2 - 20 operations. each one loads all nodes 5 at a time'),
+    ),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Start import',
+  );
+
+  return $form;
+}
+
+
+/**
+ * Triggers instagram import batch on respective form submit.
+ *
+ * @param array $form
+ *   Form API form.
+ * @param array $form_state
+ *   Form API form.
+ */
+function exhibition_instagram_import_form_submit($form, &$form_state) {
+  // Reset counter for debug information.
+//  $_SESSION['http_request_count'] = 0;
+
+  // Execute the function named exhibition_instagram_example_1 or exhibition_instagram_example_2.
+  $batch = array(
+    'title' => t('Importing from instagram'),
+    'operations' => array(
+      array('exhibition_instagram_import_batch_process', array()),
+    ),
+    'finished' => 'exhibition_instagram_import_batch_finished',
+  );
+  batch_set($batch);
+}
+
+
+/**
+ * Import one batch of media from instagram.
+ *
+ * @param $context
+ */
+// More advanced example: multi-step operation - load all nodes, five by five
+function exhibition_instagram_import_batch_process(&$context) {
+  $max_bunches = variable_get('exhibition_instagram_max_bunches', 1);
+  if (empty($context['sandbox'])) {
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['max'] = 0;
+  }
+  $bunch_results = exhibition_instagram_fetch_bunch($context['sandbox']['progress']);
+
+  // Progress / Finished?
+  $context['sandbox']['progress']++;
+  if ($context['sandbox']['progress'] >= $max_bunches) {
+    drupal_set_message('Import stopped because limit of %max_bunches reached', array('%max_bunches' => $max_bunches));
+    $context['finished'] = 1;
+  }
+  else if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+}
+
+
+/**
+ * Finishes the instagram import batch.
+ */
+function exhibition_instagram_example_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('The final result was "%final"', array('%final' => end($results))));
+  }
+  else {
+    // An error occurred.
+    // $operations contains the operations that remained unprocessed.
+    $error_operation = reset($operations);
+    drupal_set_message(
+      t('An error occurred while processing @operation with arguments : @args',
+        array(
+          '@operation' => $error_operation[0],
+          '@args' => print_r($error_operation[0], TRUE),
+        )
+      )
+    );
+  }
+}
+
+
+/**
+ * Fetches all outstanding media from the Instagram users feed.
+ */
+function exhibition_instagram_fetch_all() {
+  exhibition_instagram_fetch_media();
+}
+
+
+/**
+ * Fetches a bunch of outstanding media from the Instagram users feed.
+ */
+function exhibition_instagram_fetch_bunch($bunch_number = 0, $lasttime = 0, $limit_number = -1) {
+  $return = array();
+  $lasttime = $lasttime ? $lasttime : variable_get('exhibition_instagram_lasttime', 0);
+  $limit_number = ($limit_number >= 0) ? $limit_number : variable_get('exhibition_instagram_limit', 1);
+
+  drupal_set_message(t('Importing bunch %bunch_number of max %limit_number instagram media starting at %lasttime', array('%bunch_number' => $bunch_number, '%limit_number' => $limit_number, '%lasttime' => $lasttime)));
+
+  $instagram_user_id = variable_get('exhibition_instagram_user', 1820514626);
+  $instagram_client_id = variable_get('exhibition_instagram_client', 'bd7b7ebede8845eda7bfd97bf7560887');
+  $url = "https://api.instagram.com/v1/users/$instagram_user_id/media/recent/?client_id=$instagram_client_id&count=$limit_number&max_timestamp=$lasttime";
+
+  $response = drupal_http_request($url);
+
+  if ($response->code == 200) {
+    $return['success'] = TRUE;
+    $data = json_decode($response->data);
+
+    if (!empty($data->data)) {
+      foreach($data->data as $delta => $media) {
+        variable_set('exhibition_instagram_lasttime', $media->created_time);
+        $node = exhibition_instagram_import_media($media);
+        $m = "Import of media $bunch_number.$delta id " . $media->id . " ";
+        if ($node) {
+          $node_link = l('node ' . $node->nid, 'node/' . $node->nid);
+          $m .= 'successful. ';
+          if ($node->existing_entity) { $m .= 'UPDATED existing ' . $node_link; }
+          else { $m .= 'CREATED new ' . $node_link; }
+        }
+        else {
+          $m .= 'FAILED!';
+        }
+        drupal_set_message($m, $node ? 'status' : 'error');
+        watchdog('Instagram', $m, array(), $node ? WATCHDOG_INFO : WATCHDOG_ERROR);
+      }
+    }
+  }
+  else {
+    $return['success'] = FALSE;
+    $return['error'] = 'Statuscode ' . $response->code . ' ("' . $response->status_message . '"). Error "' . $response->error . '"';
+    drupal_set_message(t("Bunch %bunch_number failed, possibly retrying.", array('@bunch_number' => $bunch_number)));
+  }
+}
+
+
+/**
+ * Imports one given instagram media item as new visual node.
+ */
+
+function exhibition_instagram_import_media($media) {
+  $result = FALSE;
+  try {
+    $src = $media->images->standard_resolution->url;
+    $captions = explode(variable_get('exhibition_instagram_caption_delimiter', '///'), $media->caption->text);
+    //$id = $media->id;
+    //$link = $media->link;
+    //$tags = $media->tags;
+
+    $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $id)), array(
+      'type' => 'visual',
+      'status' => 0,
+      'language' => 'en',
+      'title' => 'Instagram import ' . $media->id,
+    ));
+    $existing_node = isset($node->existing_entity) ? TRUE : FALSE;
+
+    $node->status = 1;
+    $node->translations->original = $node->language;
+    $node->created = $node->updated = $media->created_time;
+    $node->uid = $GLOBALS['user']->uid;
+    $node->field_imported[LANGUAGE_NONE][0]['value'] = 1;
+    $node->field_visual_purpose[LANGUAGE_NONE][0]['value'] = 'detail';
+    $node->field_epoch[LANGUAGE_NONE][0]['tid'] = variable_get('exhibition_instagram_epoch_tid', 5); // "2015"
+    $node->field_imported_id[LANGUAGE_NONE][0]['value'] = $media->id;
+    $node->field_imported_data[LANGUAGE_NONE][0]['value'] = json_encode($media);
+    $node->field_source[LANGUAGE_NONE][0]['title'] = 'everydaySrebrenica@Instagram';
+    $node->field_source[LANGUAGE_NONE][0]['url'] = $media->link;
+
+    // Populate field_caption in EN and BS.
+    foreach(array('en', 'bs') as $lang_delta => $lang_key) {
+      $node->field_visual_caption[$lang_key][0]['value'] = $captions[$lang_delta];
+      // Ensure translations are correctly managed.
+      $node->translations->data[$lang_key] = array(
+        'entity_type' => 'node',
+        'entity_id' => $node->nid,
+        'revision_id' => $node->vid,
+        'language' => $lang_key,
+        'source' => $node->translations->original,
+        'uid' => $GLOBALS['user']->uid,
+        'status' => 1,
+        'translate' => 0,
+        'created' => $media->created_time,
+        'changed' => $media->created_time,
+      );
+    }
+
+  //  $tag_vocabulary = taxonomy_vocabulary_machine_name_load('tag');
+  //  foreach ($media->tags as $tag) {
+  ////    $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid));
+  ////    $term->field_imported[LANGUAGE_NONE][0][value] = TRUE;
+  //    taxonomy_save_term($term);
+  //    $node->field_tag[LANGUAGE_NONE][0]['tid'] = $term->tid;
+  //  }
+
+    // @Todo Determine parent content from tag matching the tag configured on a portait node.
+    // @Todo Store and associate image file
+
+    node_save($node);
+    $result = $node;
+  }
+  catch (Exception $e) {
+    watchdog_exception('node', $e);
+    drupal_set_message($e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine(), 'error');
+  }
+
+  return $result;
+}
+
+
+
+/**
+ * Gets an entity with given EFQ criteria or optionally creates one if none is found.
+ */
+function exhibition_instagram_get_entity($entity_type, $create_if_missing, $criteria, $defaults) {
+  // Try to retrieve an existing entity matching the $criteria using an entity field query.
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', $entity_type)->range(0, 1);
+  foreach($criteria as $criterion_key => $criterion_value) {
+    // "field_*"-criterion => construct field condition.
+    if ('field_' == substr($criterion_key, 0, 6)) {
+      $criterion_value_field = reset(array_keys($criterion_value));
+      $criterion_value_data  = reset($criterion_value);
+      $query->fieldCondition($criterion_key, $criterion_value_field, $criterion_value_data);
+    }
+    // Property criterion => construct property condition.
+    else {
+      $defaults[$criterion_key] = $criterion_value;
+      $query->propertyCondition($criterion_key, $criterion_value);
+    }
+  }
+
+  $result = $query->execute();
+
+  // If matching entity is found and returned, use that.
+  if (isset($result[$entity_type])) {
+    $entity = reset(entity_load($entity_type, reset(array_keys($result[$entity_type]))));
+    $entity->existing_entity = TRUE;
+  }
+  else {
+    // If no matching existing entity found, create new one.
+    $entity = new stdClass();
+    foreach ($defaults as $default_key => $default_value) {
+      $entity->{$default_key} = $default_value;
+    }
+
+    // Special treatment for some entity types.
+    if ('node' == $entity_type) {
+      node_object_prepare($entity);
+    }
+
+    // Save entity to make it come alive and have its id set.
+    entity_save($entity_type, $entity);
+  }
+
+  return $entity;
+}
+
+
+
