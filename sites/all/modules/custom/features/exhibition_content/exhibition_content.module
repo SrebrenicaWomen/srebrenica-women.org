@@ -212,6 +212,7 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
       unset($all_visuals[$epoch_tid]['featured']);
     }
   }
+  $feature_visuals_originals = $feature_visuals;
 
   // Loop through all epochs and assemble/extend build array with the visuals for that epoch.
   $epoch_counter = 0;
@@ -234,8 +235,6 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
         }
       }
       if (!empty($feature_visual)) {
-        $feature_visual_caption = reset($feature_visual['render']['node']);
-        $feature_visual_caption = (isset($feature_visual_caption['field_visual_caption']) ? strip_tags($feature_visual_caption['field_visual_caption'][0]['#markup']) : '');
         $build['feature-'.$epoch_tid] = $feature_visual['render'];
       }
 
@@ -245,6 +244,13 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
         '#attributes' => array('class' => array('details', 'clearfix')),
       );
       // Second, add tile for the time epoch.
+      if (isset($feature_visuals_originals[$epoch_tid])) {
+        $feature_visual_caption = reset($feature_visuals_originals[$epoch_tid]['render']['node']);
+        $feature_visual_caption = (isset($feature_visual_caption['field_visual_caption']) ? strip_tags($feature_visual_caption['field_visual_caption'][0]['#markup']) : '');
+      }
+      else {
+        $feature_visual_caption = '';
+      }
       $epoch_tile = array(
         '#theme' => 'tile',
         '#tile_style' => 0,
