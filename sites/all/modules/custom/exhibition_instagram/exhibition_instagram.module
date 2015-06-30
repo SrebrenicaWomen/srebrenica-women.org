@@ -52,12 +52,25 @@ function exhibition_instagram_import_form() {
     '#type' => 'markup',
     '#markup' => t('Import media from instagram feed.'),
   );
-  $form['batch'] = array(
-    '#type' => 'select',
-    '#title' => 'Choose batch',
-    '#options' => array(
-      'exhibition_instagram_1' => t('batch 1 - 1000 operations, each loading the same node'),
-      'exhibition_instagram_2' => t('batch 2 - 20 operations. each one loads all nodes 5 at a time'),
+  $form['overrides'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Optional overrides'),
+//    'limit_number' => array(
+//      '#type' => 'textfield',
+//      '#title' => t('Number of items'),
+//      '#description' => t('Optional maximum number of items to import in this run.'),
+//    ),
+//    'lasttime' => array(
+//      '#type' => 'textfield',
+//      '#title' => t('Last time'),
+//      '#description' => t('Optional UNIX timestamp to make _this_ import only consider content posted after that time. If not specified, the creation time stamp of the last previously imported content will be used by default (so don´t worry).'),
+//    ),
+    'reset_lasttime' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Reset last time'),
+      '#description' => t('Reset last import time to start importing at the very beginning again.'),
     ),
   );
   $form['submit'] = array(
@@ -78,8 +91,10 @@ function exhibition_instagram_import_form() {
  *   Form API form.
  */
 function exhibition_instagram_import_form_submit($form, &$form_state) {
-  // Reset counter for debug information.
-//  $_SESSION['http_request_count'] = 0;
+  // If requested, reset the import lasttime variable.
+  if ($form_state['values']['reset_lasttime']) {
+    variable_set('exhibition_instagram_lasttime', 0);
+  }
 
   // Execute the function named exhibition_instagram_example_1 or exhibition_instagram_example_2.
   $batch = array(
@@ -89,6 +104,7 @@ function exhibition_instagram_import_form_submit($form, &$form_state) {
     ),
     'finished' => 'exhibition_instagram_import_batch_finished',
   );
+
   batch_set($batch);
 }
 
@@ -217,7 +233,7 @@ function exhibition_instagram_import_media($media) {
   try {
     $captions = explode(variable_get('exhibition_instagram_caption_delimiter', '///'), $media->caption->text);
 
-    $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $id)), array(
+    $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $media->id)), array(
       'type' => 'visual',
       'status' => 0,
       'language' => 'en',
@@ -225,18 +241,20 @@ function exhibition_instagram_import_media($media) {
     ));
     $existing_node = isset($node->existing_entity) ? TRUE : FALSE;
 
-    $node->status = 1;
-    $node->translations->original = $node->language;
-    $node->created = $node->updated = $media->created_time;
-    $node->uid = $GLOBALS['user']->uid;
-    $node->field_imported[LANGUAGE_NONE][0]['value'] = 1;
-    $node->field_visual_purpose[LANGUAGE_NONE][0]['value'] = 'detail';
-    $node->field_epoch[LANGUAGE_NONE][0]['tid'] = variable_get('exhibition_instagram_epoch_tid', 5); // "2015"
-    $node->field_priority[LANGUAGE_NONE][0]['value'] = 0;
-    $node->field_imported_id[LANGUAGE_NONE][0]['value'] = $media->id;
+    if (!$existing_node) {
+      $node->status = 1;
+      $node->translations->original = $node->language;
+      $node->created = $node->updated = $media->created_time;
+      $node->uid = $GLOBALS['user']->uid;
+      $node->field_imported[LANGUAGE_NONE][0]['value'] = 1;
+      $node->field_visual_purpose[LANGUAGE_NONE][0]['value'] = 'detail';
+      $node->field_epoch[LANGUAGE_NONE][0]['tid'] = variable_get('exhibition_instagram_epoch_tid', 5); // "2015"
+      $node->field_priority[LANGUAGE_NONE][0]['value'] = 0;
+      $node->field_imported_id[LANGUAGE_NONE][0]['value'] = $media->id;
+      $node->field_source[LANGUAGE_NONE][0]['title'] = 'everydaySrebrenica@Instagram';
+      $node->field_source[LANGUAGE_NONE][0]['url'] = $media->link;
+    }
     $node->field_imported_data[LANGUAGE_NONE][0]['value'] = json_encode($media);
-    $node->field_source[LANGUAGE_NONE][0]['title'] = 'everydaySrebrenica@Instagram';
-    $node->field_source[LANGUAGE_NONE][0]['url'] = $media->link;
 
     // Populate field_caption in EN and BS.
     foreach(array('en', 'bs') as $lang_delta => $lang_key) {
@@ -263,6 +281,7 @@ function exhibition_instagram_import_media($media) {
 
     // Import tags.
     $tag_vocabulary = taxonomy_vocabulary_machine_name_load('tag');
+    $parent = FALSE;
     foreach ($media->tags as $tag) {
       $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
       if (!isset($term->existing_entity)) {
@@ -274,6 +293,16 @@ function exhibition_instagram_import_media($media) {
       taxonomy_term_save($term);
       // @Todo Avoid duplicate tags when running update-imports.
       $node->field_tag[LANGUAGE_NONE][]['tid'] = $term->tid;
+
+      // Determine parent content from tag matching the tag configured on a portait node.
+      if (!$parent) {
+        $parent = exhibition_instagram_get_parent_by_import_tag($tag);
+      }
+    }
+
+    // Store parent content relation.
+    if (is_object($parent)) {
+      $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] = $parent->nid;
     }
 
     // Import image file for new imports.
@@ -304,9 +333,6 @@ function exhibition_instagram_import_media($media) {
       }
     }
 
-    // @Todo Determine parent content from tag matching the tag configured on a portait node.
-    // @Todo Store and associate image file
-
     node_save($node);
     $result = $node;
   }
@@ -335,6 +361,8 @@ function exhibition_instagram_import_media($media) {
  */
 function exhibition_instagram_get_entity($entity_type, $create_if_missing, $criteria, $defaults) {
   // Try to retrieve an existing entity matching the $criteria using an entity field query.
+  $entity = FALSE;
+
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', $entity_type)->range(0, 1);
   foreach($criteria as $criterion_key => $criterion_value) {
@@ -358,7 +386,7 @@ function exhibition_instagram_get_entity($entity_type, $create_if_missing, $crit
     $entity = reset(entity_load($entity_type, array_keys($result[$entity_type])));
     $entity->existing_entity = TRUE;
   }
-  else {
+  else if ($create_if_missing) {
     // If no matching existing entity found, create new one.
     $entity = new stdClass();
     foreach ($defaults as $default_key => $default_value) {
@@ -375,6 +403,21 @@ function exhibition_instagram_get_entity($entity_type, $create_if_missing, $crit
   }
 
   return $entity;
+}
+
+
+/**
+ * Determine parent content from tag matching the tag configured on a portait node.
+ */
+function exhibition_instagram_get_parent_by_import_tag($tag) {
+  static $parents_by_tag = array();
+
+  if (!isset($parents_by_tag[$tag])) {
+    $parent = exhibition_instagram_get_entity('node', FALSE, array('field_import_tag' => array('value' => $tag)));
+    $parents_by_tag[$tag] = $parent;
+  }
+
+  return $parents_by_tag[$tag];
 }
 
 
