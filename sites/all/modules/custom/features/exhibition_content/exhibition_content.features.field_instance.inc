@@ -609,7 +609,42 @@ Only the administrator and chiefeditor roles are able to use this field for secu
       'module' => 'link',
       'settings' => array(),
       'type' => 'link_field',
-      'weight' => 7,
+      'weight' => 13,
+    ),
+  );
+
+  // Exported field_instance: 'node-portrait-field_import_tag'
+  $field_instances['node-portrait-field_import_tag'] = array(
+    'bundle' => 'portrait',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Tag to use for associating imported Instagram posts with this portrait.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 10,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_import_tag',
+    'label' => 'Import tag',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 12,
     ),
   );
 
@@ -922,7 +957,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
       'module' => 'link',
       'settings' => array(),
       'type' => 'link_field',
-      'weight' => 8,
+      'weight' => 14,
     ),
   );
 
@@ -1084,7 +1119,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 9,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1293,6 +1328,183 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     ),
   );
 
+  // Exported field_instance: 'node-visual-field_imported'
+  $field_instances['node-visual-field_imported'] = array(
+    'bundle' => 'visual',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'Has this content been imported?',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 7,
+      ),
+      'detail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'detail_square' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'feature' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_imported',
+    'label' => 'Imported',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 9,
+    ),
+  );
+
+  // Exported field_instance: 'node-visual-field_imported_data'
+  $field_instances['node-visual-field_imported_data'] = array(
+    'bundle' => 'visual',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Data payload that had been imported.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 8,
+      ),
+      'detail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'detail_square' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'feature' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_imported_data',
+    'label' => 'Imported data',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 3,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 11,
+    ),
+  );
+
+  // Exported field_instance: 'node-visual-field_imported_id'
+  $field_instances['node-visual-field_imported_id'] = array(
+    'bundle' => 'visual',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'ID of imported item at source.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
+      ),
+      'detail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'detail_square' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'feature' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_imported_id',
+    'label' => 'Imported ID',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 10,
+    ),
+  );
+
   // Exported field_instance: 'node-visual-field_parent_content'
   $field_instances['node-visual-field_parent_content'] = array(
     'bundle' => 'visual',
@@ -1304,7 +1516,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 12,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1365,7 +1577,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 8,
+        'weight' => 13,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1425,7 +1637,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'module' => 'link',
         'settings' => array(),
         'type' => 'link_default',
-        'weight' => 9,
+        'weight' => 4,
       ),
       'detail' => array(
         'label' => 'hidden',
@@ -1503,7 +1715,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 10,
+        'weight' => 5,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1565,7 +1777,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 11,
+        'weight' => 14,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1748,7 +1960,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 10,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1803,7 +2015,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 11,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1847,6 +2059,44 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
     ),
   );
 
+  // Exported field_instance: 'taxonomy_term-tag-field_imported'
+  $field_instances['taxonomy_term-tag-field_imported'] = array(
+    'bundle' => 'tag',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'Has this tag been imported?',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'taxonomy_term',
+    'field_name' => 'field_imported',
+    'label' => 'Imported',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 2,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('A priority number that is used to determine an order of content (content with lower priority number appear earlier in lists, content with higher priority numbers later in lists).');
@@ -1861,10 +2111,18 @@ Only the administrator and chiefeditor roles are able to use this field for secu
   t('Author');
   t('Body');
   t('Caption');
+  t('Data payload that had been imported.');
   t('Embed code');
   t('Feed URL');
   t('For internal distinction only.');
+  t('Has this content been imported?');
+  t('Has this tag been imported?');
+  t('ID of imported item at source.');
   t('Image file');
+  t('Import tag');
+  t('Imported');
+  t('Imported ID');
+  t('Imported data');
   t('Is this content just a test?');
   t('Lastname');
   t('Layout');
@@ -1878,6 +2136,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
   t('Social network profiles');
   t('Source');
   t('Tag');
+  t('Tag to use for associating imported Instagram posts with this portrait.');
   t('Test content');
   t('The caption or short text of this detail content.');
   t('The caption, brief story or explanation for this visual.');

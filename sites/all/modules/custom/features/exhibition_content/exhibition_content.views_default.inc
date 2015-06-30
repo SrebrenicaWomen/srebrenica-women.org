@@ -439,6 +439,11 @@ function exhibition_content_views_default_views() {
   $handler->display->display_options['fields']['changed']['date_format'] = 'custom';
   $handler->display->display_options['fields']['changed']['custom_date_format'] = 'Y-m-d';
   $handler->display->display_options['fields']['changed']['second_date_format'] = 'long';
+  /* Field: Content: Imported data */
+  $handler->display->display_options['fields']['field_imported_data']['id'] = 'field_imported_data';
+  $handler->display->display_options['fields']['field_imported_data']['table'] = 'field_data_field_imported_data';
+  $handler->display->display_options['fields']['field_imported_data']['field'] = 'field_imported_data';
+  $handler->display->display_options['fields']['field_imported_data']['exclude'] = TRUE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
@@ -458,13 +463,15 @@ function exhibition_content_views_default_views() {
   $handler->display->display_options['filters']['combine']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
+    6 => 0,
     3 => 0,
     4 => 0,
     5 => 0,
   );
   $handler->display->display_options['filters']['combine']['fields'] = array(
-    'title' => 'title',
     'field_visual_caption' => 'field_visual_caption',
+    'title' => 'title',
+    'field_imported_data' => 'field_imported_data',
   );
   /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
@@ -536,6 +543,42 @@ function exhibition_content_views_default_views() {
     4 => 0,
     5 => 0,
   );
+  /* Filter criterion: Field: Imported (field_imported) */
+  $handler->display->display_options['filters']['field_imported_value']['id'] = 'field_imported_value';
+  $handler->display->display_options['filters']['field_imported_value']['table'] = 'field_data_field_imported';
+  $handler->display->display_options['filters']['field_imported_value']['field'] = 'field_imported_value';
+  $handler->display->display_options['filters']['field_imported_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_imported_value']['expose']['operator_id'] = 'field_imported_value_op';
+  $handler->display->display_options['filters']['field_imported_value']['expose']['label'] = 'Imported?';
+  $handler->display->display_options['filters']['field_imported_value']['expose']['operator'] = 'field_imported_value_op';
+  $handler->display->display_options['filters']['field_imported_value']['expose']['identifier'] = 'field_imported_value';
+  $handler->display->display_options['filters']['field_imported_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+  );
+  /* Filter criterion: Content: Tag (field_tag) */
+  $handler->display->display_options['filters']['field_tag_tid']['id'] = 'field_tag_tid';
+  $handler->display->display_options['filters']['field_tag_tid']['table'] = 'field_data_field_tag';
+  $handler->display->display_options['filters']['field_tag_tid']['field'] = 'field_tag_tid';
+  $handler->display->display_options['filters']['field_tag_tid']['value'] = '';
+  $handler->display->display_options['filters']['field_tag_tid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_tag_tid']['expose']['operator_id'] = 'field_tag_tid_op';
+  $handler->display->display_options['filters']['field_tag_tid']['expose']['label'] = 'Tag';
+  $handler->display->display_options['filters']['field_tag_tid']['expose']['operator'] = 'field_tag_tid_op';
+  $handler->display->display_options['filters']['field_tag_tid']['expose']['identifier'] = 'field_tag_tid';
+  $handler->display->display_options['filters']['field_tag_tid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+  );
+  $handler->display->display_options['filters']['field_tag_tid']['vocabulary'] = 'tag';
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
@@ -570,10 +613,13 @@ function exhibition_content_views_default_views() {
     t('Parent'),
     t('Created'),
     t('Updated'),
+    t('Imported data'),
     t('Title, Caption, Name'),
     t('Timeframe / Epoch'),
     t('Status'),
     t('Test content?'),
+    t('Imported?'),
+    t('Tag'),
     t('Page'),
   );
   $export['admin_content'] = $view;

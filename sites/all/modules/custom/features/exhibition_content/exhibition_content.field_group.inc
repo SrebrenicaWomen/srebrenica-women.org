@@ -145,15 +145,18 @@ function exhibition_content_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Options',
-    'weight' => '6',
+    'weight' => '1',
     'children' => array(
       0 => 'field_author',
       1 => 'field_video_file',
       2 => 'field_visual_layout',
       3 => 'field_source',
       4 => 'field_test_content',
-      5 => 'title',
-      6 => 'language',
+      5 => 'field_imported',
+      6 => 'field_imported_data',
+      7 => 'title',
+      8 => 'language',
+      9 => 'field_imported_id',
     ),
     'format_type' => 'tab',
     'format_settings' => array(
@@ -182,6 +185,7 @@ function exhibition_content_field_group_info() {
     'children' => array(
       0 => 'field_feed_url',
       1 => 'field_social_network_profiles',
+      2 => 'field_import_tag',
     ),
     'format_type' => 'htab',
     'format_settings' => array(
