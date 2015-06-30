@@ -146,7 +146,7 @@ function exhibition_instagram_example_finished($success, $results, $operations) 
  * Fetches all outstanding media from the Instagram users feed.
  */
 function exhibition_instagram_fetch_all() {
-  exhibition_instagram_fetch_media();
+  exhibition_instagram_fetch_bunch(0, 0, 0);
 }
 
 
@@ -158,6 +158,7 @@ function exhibition_instagram_fetch_bunch($bunch_number = 0, $lasttime = 0, $lim
   $lasttime = $lasttime ? $lasttime : variable_get('exhibition_instagram_lasttime', 0);
   $limit_number = ($limit_number >= 0) ? $limit_number : variable_get('exhibition_instagram_limit', 1);
 
+  $time_before_bunch = microtime();
   drupal_set_message(t('Importing bunch %bunch_number of max %limit_number instagram media starting at %lasttime', array('%bunch_number' => $bunch_number, '%limit_number' => $limit_number, '%lasttime' => $lasttime)));
 
   $instagram_user_id = variable_get('exhibition_instagram_user', 1820514626);
@@ -173,6 +174,7 @@ function exhibition_instagram_fetch_bunch($bunch_number = 0, $lasttime = 0, $lim
     if (!empty($data->data)) {
       foreach($data->data as $delta => $media) {
         variable_set('exhibition_instagram_lasttime', $media->created_time);
+        $time_before = microtime();
         $node = exhibition_instagram_import_media($media);
         $m = "Import of media $bunch_number.$delta id " . $media->id . " ";
         if ($node) {
@@ -184,9 +186,18 @@ function exhibition_instagram_fetch_bunch($bunch_number = 0, $lasttime = 0, $lim
         else {
           $m .= 'FAILED!';
         }
+        $m .= ' (' . (microtime() - $time_before) .  'ms)';
         drupal_set_message($m, $node ? 'status' : 'error');
         watchdog('Instagram', $m, array(), $node ? WATCHDOG_INFO : WATCHDOG_ERROR);
       }
+      $bunch_duration = microtime() - $time_before;
+      $m = t("Bunch %bunch_number duration measured at (%bunch_duration ms).", array('%bunch_number' => $bunch_number, '%bunch_duration' => $bunch_duration));
+      drupal_set_message($m);
+      watchdog('instagram', $m);
+    } else {
+      $m = t("Bunch %bunch_number returned empty data result from instagram.");
+      drupal_set_message($m);
+      watchdog('instagram', $m);
     }
   }
   else {
@@ -225,6 +236,7 @@ function exhibition_instagram_import_media($media) {
     $node->field_imported[LANGUAGE_NONE][0]['value'] = 1;
     $node->field_visual_purpose[LANGUAGE_NONE][0]['value'] = 'detail';
     $node->field_epoch[LANGUAGE_NONE][0]['tid'] = variable_get('exhibition_instagram_epoch_tid', 5); // "2015"
+    $node->field_priority[LANGUAGE_NONE][0]['value'] = 0;
     $node->field_imported_id[LANGUAGE_NONE][0]['value'] = $media->id;
     $node->field_imported_data[LANGUAGE_NONE][0]['value'] = json_encode($media);
     $node->field_source[LANGUAGE_NONE][0]['title'] = 'everydaySrebrenica@Instagram';
@@ -232,7 +244,12 @@ function exhibition_instagram_import_media($media) {
 
     // Populate field_caption in EN and BS.
     foreach(array('en', 'bs') as $lang_delta => $lang_key) {
-      $node->field_visual_caption[$lang_key][0]['value'] = $captions[$lang_delta];
+      $caption = isset($captions[$lang_delta]) ? $captions[$lang_delta] : '';
+
+      // Remove hashtags in and from the caption itself.
+      $caption = preg_replace('/#[\w\-.]+/', '', $caption);
+
+      $node->field_visual_caption[$lang_key][0]['value'] = $caption;
       // Ensure translations are correctly managed.
       $node->translations->data[$lang_key] = array(
         'entity_type' => 'node',
@@ -248,13 +265,19 @@ function exhibition_instagram_import_media($media) {
       );
     }
 
-  //  $tag_vocabulary = taxonomy_vocabulary_machine_name_load('tag');
-  //  foreach ($media->tags as $tag) {
-  ////    $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid));
-  ////    $term->field_imported[LANGUAGE_NONE][0][value] = TRUE;
-  //    taxonomy_save_term($term);
-  //    $node->field_tag[LANGUAGE_NONE][0]['tid'] = $term->tid;
-  //  }
+    $tag_vocabulary = taxonomy_vocabulary_machine_name_load('tag');
+    foreach ($media->tags as $tag) {
+      $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
+      if (!isset($term->existing_entity)) {
+        $m = 'New term ' . $term->tid . ' "' . $term->name. '" imported.';
+        drupal_set_message($m);
+        watchdog('instagram', $m);
+      }
+      $term->field_imported[LANGUAGE_NONE][0]['value'] = 1;
+      taxonomy_term_save($term);
+      // @Todo Avoid duplicate tags when running update-imports.
+      $node->field_tag[LANGUAGE_NONE][]['tid'] = $term->tid;
+    }
 
     // @Todo Determine parent content from tag matching the tag configured on a portait node.
     // @Todo Store and associate image file
@@ -263,8 +286,9 @@ function exhibition_instagram_import_media($media) {
     $result = $node;
   }
   catch (Exception $e) {
-    watchdog_exception('node', $e);
-    drupal_set_message($e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine(), 'error');
+    watchdog_exception('instagram', $e);
+    drupal_set_message('Exception: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+    drupal_set_message('Exception: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine(), 'error');
   }
 
   return $result;
@@ -274,6 +298,16 @@ function exhibition_instagram_import_media($media) {
 
 /**
  * Gets an entity with given EFQ criteria or optionally creates one if none is found.
+ *
+ * Examples:
+ *     $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
+ *
+ *     $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $id)), array(
+ *       'type' => 'visual',
+ *       'status' => 0,
+ *       'language' => 'en',
+ *       'title' => 'Instagram import ' . $media->id,
+ *      ));
  */
 function exhibition_instagram_get_entity($entity_type, $create_if_missing, $criteria, $defaults) {
   // Try to retrieve an existing entity matching the $criteria using an entity field query.
@@ -297,7 +331,7 @@ function exhibition_instagram_get_entity($entity_type, $create_if_missing, $crit
 
   // If matching entity is found and returned, use that.
   if (isset($result[$entity_type])) {
-    $entity = reset(entity_load($entity_type, reset(array_keys($result[$entity_type]))));
+    $entity = reset(entity_load($entity_type, array_keys($result[$entity_type])));
     $entity->existing_entity = TRUE;
   }
   else {
