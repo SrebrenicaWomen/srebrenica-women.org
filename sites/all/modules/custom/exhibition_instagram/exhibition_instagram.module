@@ -215,11 +215,7 @@ function exhibition_instagram_fetch_bunch($bunch_number = 0, $lasttime = 0, $lim
 function exhibition_instagram_import_media($media) {
   $result = FALSE;
   try {
-    $src = $media->images->standard_resolution->url;
     $captions = explode(variable_get('exhibition_instagram_caption_delimiter', '///'), $media->caption->text);
-    //$id = $media->id;
-    //$link = $media->link;
-    //$tags = $media->tags;
 
     $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $id)), array(
       'type' => 'visual',
@@ -265,6 +261,7 @@ function exhibition_instagram_import_media($media) {
       );
     }
 
+    // Import tags.
     $tag_vocabulary = taxonomy_vocabulary_machine_name_load('tag');
     foreach ($media->tags as $tag) {
       $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
@@ -279,6 +276,34 @@ function exhibition_instagram_import_media($media) {
       $node->field_tag[LANGUAGE_NONE][]['tid'] = $term->tid;
     }
 
+    // Import image file for new imports.
+    if (!isset($node->existing_entity)) {
+      if (!empty($media->images->standard_resolution->url)) {
+        $url = $media->images->standard_resolution->url;
+        $local_file_path = 'public://field_image_file__imported';
+        file_prepare_directory($local_file_path, FILE_CREATE_DIRECTORY);
+        $local_file_path .= '/' . $node->nid . '--' . $media->id . '.jpg';
+        $file_result = exhibition_instagram_store_file($url, $node, 'field_image_file', $local_file_path);
+        if ($file_result) {
+          $m = t('Successfully imported and stored file %url', array('%url' => $url));
+          drupal_set_message($m);
+          watchdog('instagram', $m);
+        }
+        else {
+          $m = t('FAILED to import and store file %url', array('%url' => $url));
+          drupal_set_message($m, 'error');
+          watchdog('instagram', $m, array(), WATCHDOG_ERROR);
+        }
+      }
+      else {
+        if (!file_result) {
+          $m = t('No image file for standard resolution found in instagram response for importing %media_id.', array('%media_id' => $media->id));
+          drupal_set_message($m, 'error');
+          watchdog('instagram', $m, array(), WATCHDOG_ERROR);
+        }
+      }
+    }
+
     // @Todo Determine parent content from tag matching the tag configured on a portait node.
     // @Todo Store and associate image file
 
@@ -287,7 +312,6 @@ function exhibition_instagram_import_media($media) {
   }
   catch (Exception $e) {
     watchdog_exception('instagram', $e);
-    drupal_set_message('Exception: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
     drupal_set_message('Exception: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine(), 'error');
   }
 
@@ -354,4 +378,17 @@ function exhibition_instagram_get_entity($entity_type, $create_if_missing, $crit
 }
 
 
+/**
+ * Stores a remote file locally and assigns it to a given node and file/image field.
+ */
+function exhibition_instagram_store_file($url, &$node, $field_name, $local_file_path, $language = LANGUAGE_NONE) {
+  $result = FALSE;
+  $file_info = system_retrieve_file($url, $local_file_path, TRUE);
+  if ($file_info->fid) {
+    $result = TRUE;
+    $node->{$field_name}[$language][]['fid'] = $file_info->fid;
+    file_usage_add($file_info, 'file', 'node', $node->nid);
+  }
+  return $result;
+}
 
