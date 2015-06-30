@@ -558,10 +558,9 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 10,
+        'type' => 'hidden',
+        'weight' => 0,
       ),
     ),
     'entity_type' => 'node',
@@ -642,7 +641,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 1,
+        'weight' => 2,
       ),
       'detail' => array(
         'label' => 'above',
@@ -693,7 +692,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'detail' => array(
         'label' => 'above',
@@ -743,7 +742,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 1,
       ),
       'detail' => array(
         'label' => 'above',
@@ -959,7 +958,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'detail' => array(
         'label' => 'above',
