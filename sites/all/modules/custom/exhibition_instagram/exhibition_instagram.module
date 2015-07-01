@@ -39,7 +39,7 @@ function exhibition_instagram_menu() {
   $items = array();
   $items['admin/content/instagram-import'] = array(
     'title' => 'Instagram Import',
-    'description' => 'Trigger ^import of media from instagram',
+    'description' => 'Trigger import of media from instagram',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('exhibition_instagram_import_form'),
     'access arguments' => array('administer content'),
