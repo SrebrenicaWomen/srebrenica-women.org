@@ -106,6 +106,7 @@ a {
 
 .tile {
     display: inline-block;
+    vertical-align: top;
     width: auto;
     margin: 0px;
     padding: 0px;
