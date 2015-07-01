@@ -39,7 +39,7 @@ function exhibition_instagram_menu() {
   $items = array();
   $items['admin/content/instagram-import'] = array(
     'title' => 'Instagram Import',
-    'description' => 'Trigger import of media from instagram',
+    'description' => 'Trigger ^import of media from instagram',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('exhibition_instagram_import_form'),
     'access arguments' => array('administer content'),
@@ -193,8 +193,11 @@ function exhibition_instagram_batch_finished($success, $results, $operations) {
 /**
  * Fetches all outstanding media from the Instagram users feed.
  */
-function exhibition_instagram_fetch_all() {
-  exhibition_instagram_fetch_bunch(0, 0, 0);
+function exhibition_instagram_fetch() {
+  $max = variable_get('exhibition_instagram_count', EXHIBITION_INSTAGRAM_COUNT);
+  for ($i = 1; $i <= $max; $i++) {
+    $bunch_result = exhibition_instagram_fetch_bunch($i);
+  }
 }
 
 
@@ -209,8 +212,6 @@ function exhibition_instagram_fetch_bunch($bunch_number = 0, $max_id = FALSE, $m
     'result_count' => 0,
   );
   if (!$max_count) { $max_count = EXHIBITION_INSTAGRAM_RESULTS_PER_QUERY; }
-  //$lasttime = $lasttime ? $lasttime : variable_get('exhibition_instagram_lasttime', 0);
-  //$limit_number = ($limit_number >= 0) ? $limit_number : variable_get('exhibition_instagram_limit', 10);
 
   $time_before_bunch = microtime();
   exhibition_instagram_log('Importing bunch %bunch_number of max %limit_number instagram media starting at id %max_id', array('%bunch_number' => $bunch_number, '%limit_number' => EXHIBITION_INSTAGRAM_RESULTS_PER_QUERY, '%max_id' => $max_id), FALSE, TRUE);
