@@ -324,30 +324,50 @@ function exhibition_content_get_sub_content($parent_nid) {
 function exhibition_content_get_overview_content($pager = 0) {
   $main_featured_visuals = array();
   $build = array();
-  $query = new EntityFieldQuery();
 
+  // Query nodes.
+  $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
     ->entityCondition('bundle', array('visual'))
     ->propertyCondition('status', NODE_PUBLISHED)
-  //->propertyCondition('promote', NODE_PROMOTED)
-    //->fieldCondition('field_parent_content', 'target_id', $parent_nid)
-    //->fieldOrderBy('field_priority', 'value', 'ASC') // Side-effect: Excludes non-prioritized content.
+    ->propertyOrderBy('created', 'DESC')
     ->range($pager, 1000);
-
   $result = $query->execute();
 
-  if (isset($result['node'])) {
-    $nodes = entity_load('node', array_keys($result['node']));
-    foreach($nodes as $node) {
-      $purpose  = @$node->field_visual_purpose[LANGUAGE_NONE][0]['value'];
-      $parent = isset($node->field_parent_content[LANGUAGE_NONE][0]['target_id']) ? $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] : 0;
-      if (!isset($main_featured_visuals[$parent]) &&  ('featured' == $purpose)) {
-        $main_featured_visuals[$parent] = TRUE;
-        $node->main_featured_visual = TRUE;
-      }
-      $render = entity_view('node', array($node), 'teaser');
-      $build[] = $render;
+  // If empty result, return empty build.
+  if (!isset($result['node'])) { return $build; }
+
+  // Load nodes.
+  $nodes = entity_load('node', array_keys($result['node']));
+
+  // Mark latest feature visuals for each portrait.
+  foreach($nodes as $node) {
+    $purpose  = @$node->field_visual_purpose[LANGUAGE_NONE][0]['value'];
+    $parent = isset($node->field_parent_content[LANGUAGE_NONE][0]['target_id']) ? $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] : 0;
+    if (!isset($main_featured_visuals[$parent]) &&  ('featured' == $purpose)) {
+      $main_featured_visuals[$parent] = TRUE;
+      $node->main_featured_visual = TRUE;
     }
+  }
+
+  // Seed with created time of first node for consistent results that change only when result set changes.
+  $rest = array_values($nodes);
+  srand($rest[0]->created);
+  mt_srand($rest[0]->created);
+
+  $newest = array_splice($rest, 0, 7);
+  shuffle($rest);
+  $above = array_splice($rest, 0, 40);
+  // @Todo add 3 (or the "promoted") text tiles (maybe with random color-/size-assignment?)
+  shuffle($above);
+
+  $all = array_merge($newest, $above, $rest);
+  // dpm(count(nodes) . ' = ' . count($all) . ' = ' . count($newest) . ' + ' . count($above) . ' + ' . count($rest));
+
+  // Render nodes
+  foreach ($all as $node) {
+    $render = entity_view('node', array($node), 'teaser');
+    $build[] = $render;
   }
 
   return $build;
