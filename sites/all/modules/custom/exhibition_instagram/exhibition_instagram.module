@@ -11,24 +11,8 @@ DEFINE('EXHIBITION_INSTAGRAM_COUNT', 100);
 /**
  * Implements hook_cron().
  */
-//function exhibition_instagram_cron() {
-//  exhibition_instagram_fetch_media();
-//}
-
-
-/**
- * Implements hook_cron_queue_info().
- *
- * Define our own "queue" item worked off by default system cron.
- */
-function exhibition_instagram_cron_queue_info() {
-//  $queues = array(
-//    'exhibition_instagram' => array(
-//      'worker callback' => 'exhibition_instagram_fetch_all',
-//      'time' => 15, // default: 15 seconds.
-//    ),
-//  );
-//  return $queues;
+function exhibition_instagram_cron() {
+  exhibition_instagram_fetch();
 }
 
 
@@ -150,7 +134,7 @@ function exhibition_instagram_import_batch_process($overrides = array(), &$conte
   }
 
   $bunch_result = exhibition_instagram_fetch_bunch($context['sandbox']['progress'], $context['sandbox']['max_id'], $context['sandbox']['count']-count($context['results']));
-  if ($GLOBALS['exhibition_instagram_log_debug_mode']) { dpm($bunch_result['imported'], 'batch $bunch_result[imported]'); }
+  if (isset($GLOBALS['exhibition_instagram_log_debug_mode'])) { dpm($bunch_result['imported'], 'batch $bunch_result[imported]'); }
   $context['results'] = array_merge($context['results'], $bunch_result['imported']);
   $context['sandbox']['max_id'] = $bunch_result['max_id'];
 
@@ -168,7 +152,7 @@ function exhibition_instagram_import_batch_process($overrides = array(), &$conte
   }
 
   $context['message'] = t('Found and imported %results of %max_results', array('%results' => count($context['results']), '%max_results' => $context['sandbox']['count']));
-  if ($GLOBALS['exhibition_instagram_log_debug_mode']) { dpm($context, 'batch $context'); }
+  if (isset($GLOBALS['exhibition_instagram_log_debug_mode'])) { dpm($context, 'batch $context'); }
 }
 
 /**
@@ -241,7 +225,7 @@ function exhibition_instagram_fetch_bunch($bunch_number = 0, $max_id = FALSE, $m
             $max_count--;
             $node_link = l('node ' . $node->nid, 'node/' . $node->nid);
             $m .= 'SUCCESSFUL. ';
-            $return['imported'][] = $node->title;
+            $return['imported'][] = 'Imported node ' . $node->nid . ': ' . $node->title;
             if ($node->existing_entity) {
               $m .= 'UPDATED existing ' . $node_link;
             }
@@ -288,14 +272,19 @@ function exhibition_instagram_import_media($media) {
 
     // Only look further if this item has a parent relationship.
     if (is_object($parent)) {
+      // Split up captions.
+      $captions = explode(variable_get('exhibition_instagram_caption_delimiter', '///'), $media->caption->text);
+
       $node_title = '@' . $parent->title . ' - Instagram import ' . $media->id;
+
+      // Prepare dummy and return in case of dry run.
       if (isset($GLOBALS['exhibition_instagram_dryrun'])) {
         $dummy = new stdClass();
         $dummy->title = $node_title;
+        $dummy->nid = '';
+        $dummy->existing_entity = FALSE;
         return $dummy;
       }
-      // Split up captions.
-      $captions = explode(variable_get('exhibition_instagram_caption_delimiter', '///'), $media->caption->text);
 
       // Try to find existing node.
       $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $media->id)), array(
@@ -414,7 +403,7 @@ function exhibition_instagram_import_media($media) {
  *       'title' => 'Instagram import ' . $media->id,
  *      ));
  */
-function exhibition_instagram_get_entity($entity_type, $create_if_missing, $criteria, $defaults) {
+function exhibition_instagram_get_entity($entity_type, $create_if_missing, $criteria, $defaults = array()) {
   // Try to retrieve an existing entity matching the $criteria using an entity field query.
   $entity = FALSE;
 
@@ -423,8 +412,8 @@ function exhibition_instagram_get_entity($entity_type, $create_if_missing, $crit
   foreach($criteria as $criterion_key => $criterion_value) {
     // "field_*"-criterion => construct field condition.
     if ('field_' == substr($criterion_key, 0, 6)) {
-      $criterion_value_field = reset(array_keys($criterion_value));
-      $criterion_value_data  = reset($criterion_value);
+      $criterion_value_field = @reset(array_keys($criterion_value));
+      $criterion_value_data  = @reset($criterion_value);
       $query->fieldCondition($criterion_key, $criterion_value_field, $criterion_value_data);
     }
     // Property criterion => construct property condition.
@@ -438,7 +427,7 @@ function exhibition_instagram_get_entity($entity_type, $create_if_missing, $crit
 
   // If matching entity is found and returned, use that.
   if (isset($result[$entity_type])) {
-    $entity = reset(entity_load($entity_type, array_keys($result[$entity_type])));
+    $entity = @reset(entity_load($entity_type, array_keys($result[$entity_type])));
     $entity->existing_entity = TRUE;
   }
   else if ($create_if_missing) {
