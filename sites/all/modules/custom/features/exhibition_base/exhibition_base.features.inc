@@ -67,8 +67,8 @@ function exhibition_base_image_default_styles() {
       5 => array(
         'name' => 'image_scale',
         'data' => array(
-          'width' => 1600,
-          'height' => 1600,
+          'width' => 1200,
+          'height' => 1200,
           'upscale' => 0,
         ),
         'weight' => 1,
