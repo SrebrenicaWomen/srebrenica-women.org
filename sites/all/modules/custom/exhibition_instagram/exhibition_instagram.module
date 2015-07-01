@@ -4,7 +4,7 @@
 DEFINE('EXHIBITION_INSTAGRAM_USER', '1820514626');
 DEFINE('EXHIBITION_INSTAGRAM_CLIENT', 'bd7b7ebede8845eda7bfd97bf7560887');
 DEFINE('EXHIBITION_INSTAGRAM_RESULTS_PER_QUERY', 20);
-DEFINE('EXHIBITION_INSTAGRAM_MAX_BUNCHES', 20);
+DEFINE('EXHIBITION_INSTAGRAM_MAX_BUNCHES', 25);
 DEFINE('EXHIBITION_INSTAGRAM_COUNT', 100);
 
 
@@ -74,6 +74,16 @@ function exhibition_instagram_import_form() {
       '#title' => t('Max ID'),
       '#description' => t('Optional instagram post ID. If set, only posts prior to that are considered for import.'),
     ),
+    'debug' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Debug info'),
+      '#description' => t('Display debug info.'),
+    ),
+    'dryrun' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Dry Run'),
+      '#description' => t('Simulate import as dry run (without actually creating content'),
+    ),
   );
   $form['submit'] = array(
     '#type' => 'submit',
@@ -107,6 +117,16 @@ function exhibition_instagram_import_form_submit($form, &$form_state) {
 
 
 /**
+ * Displays and logs info.
+ */
+function exhibition_instagram_log($message, $arguments = array(), $error = FALSE, $debug_only = FALSE) {
+  if (isset($GLOBALS['exhibition_instagram_log_debug_mode']) || !$debug_only) {
+    drupal_set_message(t($message, $arguments), $error ? 'error' : 'status');
+    watchdog('instagram', $message, $arguments, $error ? WATCHDOG_ERROR : WATCHDOG_INFO);
+  }
+}
+
+/**
  * Import one batch of media from instagram.
  *
  * @param $context
@@ -119,49 +139,53 @@ function exhibition_instagram_import_batch_process($overrides = array(), &$conte
     $context['sandbox']['count'] = isset($overrides['count']) ? $overrides['count'] : EXHIBITION_INSTAGRAM_COUNT;
     $context['sandbox']['bunches'] = ceil($context['sandbox']['count'] / EXHIBITION_INSTAGRAM_RESULTS_PER_QUERY);
   }
-  
-  $context['message'] = t('Import of bunch %bunch of %bunches', array('%bunch' => $context['sandbox']['progress'], '%bunches' => $context['sandbox']['bunches']));
+  else {
+    $context['sandbox']['progress']++;
+  }
+  if ($overrides['debug']) {
+    $GLOBALS['exhibition_instagram_log_debug_mode'] = TRUE;
+  }
+  if ($overrides['dryrun']) {
+    $GLOBALS['exhibition_instagram_dryrun'] = TRUE;
+  }
 
-  $bunch_result = exhibition_instagram_fetch_bunch($context['sandbox']['progress'], $context['sandbox']['max_id']);
-  $context['results'] += $bunch_result['imported'];
+  $bunch_result = exhibition_instagram_fetch_bunch($context['sandbox']['progress'], $context['sandbox']['max_id'], $context['sandbox']['count']-count($context['results']));
+  if ($GLOBALS['exhibition_instagram_log_debug_mode']) { dpm($bunch_result['imported'], 'batch $bunch_result[imported]'); }
+  $context['results'] = array_merge($context['results'], $bunch_result['imported']);
   $context['sandbox']['max_id'] = $bunch_result['max_id'];
 
   // Progress / Finished?
   if ($context['sandbox']['progress'] > EXHIBITION_INSTAGRAM_MAX_BUNCHES) {
-    drupal_set_message('Import stopped because limit of %max_bunches reached', array('%max_bunches' => EXHIBITION_INSTAGRAM_MAX_BUNCHES));
+    exhibition_instagram_log('Import stopped because limit of %max_bunches bunches reached', array('%max_bunches' => EXHIBITION_INSTAGRAM_MAX_BUNCHES), FALSE, TRUE);
     $context['finished'] = 1;
   }
   else if (!$bunch_result['result_count']) {
-    drupal_set_message('Empty instagram response for bunch %bunch => we stop import here.', array('%bunch' => ($context['sandbox']['progress']-1)));
+    exhibition_instagram_log('Empty instagram response for bunch %bunch => we stop import here.', array('%bunch' => $context['sandbox']['progress']), FALSE, TRUE);
     $context['finished'] = 1;
   }
   else {
-    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['bunches'];
+    $context['finished'] = count($context['results']) / $context['sandbox']['count'];
   }
 
-  dpm($context);
+  $context['message'] = t('Found and imported %results of %max_results', array('%results' => count($context['results']), '%max_results' => $context['sandbox']['count']));
+  if ($GLOBALS['exhibition_instagram_log_debug_mode']) { dpm($context, 'batch $context'); }
 }
-
 
 /**
  * Finishes the instagram import batch.
  */
 function exhibition_instagram_batch_finished($success, $results, $operations) {
   if ($success) {
-    drupal_set_message(t('Imported %num posts<br />%results', array('%num' => count($results), '%results' => implode('<br />', $results))));
+    exhibition_instagram_log("Imported %num posts", array('%num' => count($results)));
+    foreach($results as $result) {
+      exhibition_instagram_log($result);
+    }
   }
   else {
     // An error occurred.
     // $operations contains the operations that remained unprocessed.
     $error_operation = reset($operations);
-    drupal_set_message(
-      t('An error occurred while processing @operation with arguments : @args',
-        array(
-          '@operation' => $error_operation[0],
-          '@args' => print_r($error_operation[0], TRUE),
-        )
-      )
-    );
+    exhibition_instagram_log('An error occurred while processing @operation with arguments : @args', array('@operation' => $error_operation[0], '@args' => print_r($error_operation[0], TRUE)), TRUE);
   }
 }
 
@@ -177,18 +201,19 @@ function exhibition_instagram_fetch_all() {
 /**
  * Fetches a bunch of outstanding media from the Instagram users feed.
  */
-function exhibition_instagram_fetch_bunch($bunch_number = 0, $max_id = FALSE) {
+function exhibition_instagram_fetch_bunch($bunch_number = 0, $max_id = FALSE, $max_count = 0) {
   $return = array(
     'success' => FALSE,
     'max_id' => FALSE,
     'imported' => array(),
     'result_count' => 0,
   );
+  if (!$max_count) { $max_count = EXHIBITION_INSTAGRAM_RESULTS_PER_QUERY; }
   //$lasttime = $lasttime ? $lasttime : variable_get('exhibition_instagram_lasttime', 0);
   //$limit_number = ($limit_number >= 0) ? $limit_number : variable_get('exhibition_instagram_limit', 10);
 
   $time_before_bunch = microtime();
-  drupal_set_message(t('Importing bunch %bunch_number of max %limit_number instagram media starting at id %max_id', array('%bunch_number' => $bunch_number, '%limit_number' => EXHIBITION_INSTAGRAM_RESULTS_PER_QUERY, '%max_id' => $max_id)));
+  exhibition_instagram_log('Importing bunch %bunch_number of max %limit_number instagram media starting at id %max_id', array('%bunch_number' => $bunch_number, '%limit_number' => EXHIBITION_INSTAGRAM_RESULTS_PER_QUERY, '%max_id' => $max_id), FALSE, TRUE);
 
   $instagram_user_id = variable_get('exhibition_instagram_user', EXHIBITION_INSTAGRAM_USER);
   $instagram_client_id = variable_get('exhibition_instagram_client', EXHIBITION_INSTAGRAM_CLIENT);
@@ -206,42 +231,39 @@ function exhibition_instagram_fetch_bunch($bunch_number = 0, $max_id = FALSE) {
     if (!empty($data->data)) {
       $return['result_count'] = count($data->data);
       foreach($data->data as $delta => $media) {
-        $return['max_id'] = $media->id;
-        $time_before = microtime();
-        $node = exhibition_instagram_import_media($media);
-        $m = "Import of media $bunch_number.$delta id " . $media->id . " ";
-        if (is_object($node)) {
-          $node_link = l('node ' . $node->nid, 'node/' . $node->nid);
-          $m .= 'successful. ';
-          $return['imported'][] = $node->title;
-          if ($node->existing_entity) {
-            $m .= 'UPDATED existing ' . $node_link;
+        if ($max_count > 0) {
+          $return['max_id'] = $media->id;
+          $time_before = microtime();
+          $node = exhibition_instagram_import_media($media);
+          $m = "Import of media $bunch_number.$delta id " . $media->id . " ";
+          if (is_object($node)) {
+            $max_count--;
+            $node_link = l('node ' . $node->nid, 'node/' . $node->nid);
+            $m .= 'SUCCESSFUL. ';
+            $return['imported'][] = $node->title;
+            if ($node->existing_entity) {
+              $m .= 'UPDATED existing ' . $node_link;
+            }
+            else {
+              $m .= 'CREATED new ' . $node_link;
+            }
           }
           else {
-            $m .= 'CREATED new ' . $node_link;
+            $m .= $node ? 'SKIPPED' : 'FAILED!';
           }
+          $m .= ' (' . (microtime() - $time_before) .  'ms)';
+          exhibition_instagram_log($m, array(), (FALSE === $node), TRUE);
         }
-        else {
-          $m = $node ? 'skipped' : 'FAILED!';
-        }
-        $m .= ' (' . (microtime() - $time_before) .  'ms)';
-        drupal_set_message($m, $node ? 'status' : 'error');
-        watchdog('Instagram', $m, array(), $node ? WATCHDOG_INFO : WATCHDOG_ERROR);
       }
-      $bunch_duration = microtime() - $time_before;
-      $m = t("Bunch %bunch_number duration measured at (%bunch_duration ms).", array('%bunch_number' => $bunch_number, '%bunch_duration' => $bunch_duration));
-      drupal_set_message($m);
-      watchdog('instagram', $m);
+      exhibition_instagram_log('Bunch %bunch_number duration measured at (%bunch_duration ms).', array('%bunch_number' => $bunch_number, '%bunch_duration' => microtime() - $time_before), FALSE, TRUE);
     } else {
-      $m = t("Bunch %bunch_number returned empty data result from instagram.");
-      drupal_set_message($m);
-      watchdog('instagram', $m);
+      exhibition_instagram_log('Bunch %bunch_number returned empty data result from instagram.', array('%bunch_number' => $bunch_number), FALSE, TRUE);
     }
   }
   else {
     $return['success'] = FALSE;
     $return['error'] = 'Statuscode ' . $response->code . ' ("' . $response->status_message . '"). Error "' . $response->error . '"';
-    drupal_set_message(t("Bunch %bunch_number failed, possibly retrying.", array('@bunch_number' => $bunch_number)));
+    exhibition_instagram_log('Bunch %bunch_number failed.', array('@bunch_number' => $bunch_number), TRUE, TRUE);
   }
 
   return $return;
@@ -265,6 +287,12 @@ function exhibition_instagram_import_media($media) {
 
     // Only look further if this item has a parent relationship.
     if (is_object($parent)) {
+      $node_title = '@' . $parent->title . ' - Instagram import ' . $media->id;
+      if (isset($GLOBALS['exhibition_instagram_dryrun'])) {
+        $dummy = new stdClass();
+        $dummy->title = $node_title;
+        return $dummy;
+      }
       // Split up captions.
       $captions = explode(variable_get('exhibition_instagram_caption_delimiter', '///'), $media->caption->text);
 
@@ -273,15 +301,16 @@ function exhibition_instagram_import_media($media) {
         'type' => 'visual',
         'status' => 0,
         'language' => 'en',
-        'title' => 'Instagram import ' . $media->id,
+        'title' => $node_title,
       ));
-      $existing_node = isset($node->existing_entity) ? TRUE : FALSE;
+      $existing_node = isset($node->existing_entity);
 
       // Fill fields.
       if (!$existing_node) {
+        $node->importing = TRUE;
         $node->status = 1;
         $node->translations->original = $node->language;
-        $node->created = $node->changed = $media->created_time;
+        $node->created = $node->modified = $media->created_time;
         $node->uid = $GLOBALS['user']->uid;
         $node->field_imported[LANGUAGE_NONE][0]['value'] = 1;
         $node->field_visual_purpose[LANGUAGE_NONE][0]['value'] = 'detail';
@@ -323,9 +352,7 @@ function exhibition_instagram_import_media($media) {
       foreach ($media->tags as $tag) {
         $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
         if (!isset($term->existing_entity)) {
-          $m = 'New term ' . $term->tid . ' "' . $term->name. '" imported.';
-          drupal_set_message($m);
-          watchdog('instagram', $m);
+          exhibition_instagram_log('New term %tid "%name" imported.', array('%tid' => $term->tid, '%name' => $term->name), FALSE, TRUE);
         }
         $term->field_imported[LANGUAGE_NONE][0]['value'] = 1;
         taxonomy_term_save($term);
@@ -342,21 +369,15 @@ function exhibition_instagram_import_media($media) {
           $local_file_path .= '/' . $node->nid . '--' . $media->id . '.jpg';
           $file_result = exhibition_instagram_store_file($url, $node, 'field_image_file', $local_file_path);
           if ($file_result) {
-            $m = t('Successfully imported and stored file %url', array('%url' => $url));
-            drupal_set_message($m);
-            watchdog('instagram', $m);
+            exhibition_instagram_log('Successfully imported and stored file %url.', array('%url' => $url), FALSE, TRUE);
           }
           else {
-            $m = t('FAILED to import and store file %url', array('%url' => $url));
-            drupal_set_message($m, 'error');
-            watchdog('instagram', $m, array(), WATCHDOG_ERROR);
+            exhibition_instagram_log('FAILED to import and store file %url', array('%url' => $url), TRUE, TRUE);
           }
         }
         else {
           if (!file_result) {
-            $m = t('No image file for standard resolution found in instagram response for importing %media_id.', array('%media_id' => $media->id));
-            drupal_set_message($m, 'error');
-            watchdog('instagram', $m, array(), WATCHDOG_ERROR);
+            exhibition_instagram_log('No image file for standard resolution found in instagram response for importing %media_id.', array('%media_id' => $media->id), TRUE, TRUE);
           }
         }
       }
@@ -371,7 +392,7 @@ function exhibition_instagram_import_media($media) {
   }
   catch (Exception $e) {
     watchdog_exception('instagram', $e);
-    drupal_set_message('Exception: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine(), 'error');
+    exhibition_instagram_log('Exception: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine(), array(), TRUE, FALSE);
   }
 
   return $result;
@@ -461,10 +482,21 @@ function exhibition_instagram_store_file($url, &$node, $field_name, $local_file_
   $result = FALSE;
   $file_info = system_retrieve_file($url, $local_file_path, TRUE);
   if ($file_info->fid) {
-    $result = TRUE;
+    $result = $file_info;
     $node->{$field_name}[$language][]['fid'] = $file_info->fid;
     file_usage_add($file_info, 'file', 'node', $node->nid);
   }
   return $result;
 }
+
+
+/**
+ * Implements hook_node_presave().
+ */
+function exhibition_instagram_node_presave(&$node) {
+  if (isset($node->importing)) {
+    $node->changed = $node->modified;
+  }
+}
+
 
