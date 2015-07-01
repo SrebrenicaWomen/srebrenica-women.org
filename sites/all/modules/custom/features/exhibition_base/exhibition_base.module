@@ -7,6 +7,11 @@
 include_once 'exhibition_base.features.inc';
 
 
+DEFINE('EXHIBITION_BASE_INSTAGRAM_PAGE_URL', 'https://instagram.com/everydaysrebrenica');
+DEFINE('EXHIBITION_BASE_ID_EPOCH_2015', 5);
+
+
+
 /**
  * Implementation of hook_menu().
  */
