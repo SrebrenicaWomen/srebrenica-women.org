@@ -155,6 +155,9 @@ a {
 .tile a:hover {
     text-decoration: none;
 }
+.tile .field-caption a:hover {
+    text-decoration: underline;
+}
 
 .no-touch .tile figure:hover img,
 .tile figure.cs-hover img {
