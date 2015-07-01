@@ -49,6 +49,7 @@ function exhibition_preprocess_node(&$vars, $hook) {
     $vars['tile_class'] = 'viewmode-' . str_replace('_', '-', $view_mode);
 
     // Replace title with parent content's title.
+    $parent = FALSE;
     if (isset($node->field_parent_content[LANGUAGE_NONE])) {
       $parent = node_load($node->field_parent_content[LANGUAGE_NONE][0]['target_id']);
       $vars['title'] = $parent->title;
@@ -79,6 +80,15 @@ function exhibition_preprocess_node(&$vars, $hook) {
       if (isset($node->main_featured_visual)) {
         $vars['tile_class'] = 'teaser-big';
       }
+      $vars['tile_visual'] = array(
+        '#theme' => 'image_formatter',
+        '#image_style' => isset($node->main_featured_visual) ? 'teaser_square' : 'teaser_square_small',
+        '#item' => array(
+          'uri' => $node->field_image_file[LANGUAGE_NONE][0]['uri'],
+          'title' => $overlay_caption,
+          'alt' => $overlay_caption,
+        ),
+      );
     }
     if ('detail' == $view_mode) {
       unset($vars['tile_title']);
