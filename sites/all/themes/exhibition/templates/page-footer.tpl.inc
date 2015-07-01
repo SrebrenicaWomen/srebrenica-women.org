@@ -1,6 +1,6 @@
 <div class="page-footer">
   <div class="extro blurb">
-    <h2><?php print t('Our View - 12 Women From Srebrenica'); ?></h2>
+    <h2><?php print t('Our View - 12 women From Srebrenica'); ?></h2>
     <p>
     We are a group of 12 women from Srebrenica,
     using cell phone photography to talk about our personal life in Bosnia nowadays.
