@@ -31,4 +31,15 @@ function exhibition_base_update_7003() {
 }
 
 
+/**
+ * Implementation of hook_update_N().
+ *
+ * Activate exhibition_instagram.module.
+ */
+function exhibition_base_update_7004() {
+  module_enable(array('exhibition_instagram'));
+  field_delete_field('field_feed_url');
+}
+
+
 // END OF FILE marker.
