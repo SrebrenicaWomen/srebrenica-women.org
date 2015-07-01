@@ -178,10 +178,20 @@ function exhibition_instagram_batch_finished($success, $results, $operations) {
  * Fetches all outstanding media from the Instagram users feed.
  */
 function exhibition_instagram_fetch() {
+  $results = array();
   $max = variable_get('exhibition_instagram_count', EXHIBITION_INSTAGRAM_COUNT);
-  for ($i = 1; $i <= $max; $i++) {
-    $bunch_result = exhibition_instagram_fetch_bunch($i);
+  $max_id = FALSE;
+  $bunch = 0;
+  do {
+    $bunch++;
+    $bunch_result = exhibition_instagram_fetch_bunch($i, $max_id);
+    $max_id = $bunch_result['max_id'];
+    $results = array_merge($results, $bunch_result['imported']);
+    if (php_sapi_name() == "cli") {
+      print "Importing ... bunch $bunch.\n";
+    }
   }
+  while (($bunch < EXHIBITION_INSTAGRAM_MAX_BUNCHES) && count($bunch_result['imported']) && (count($results) < $max));
 }
 
 
@@ -277,103 +287,113 @@ function exhibition_instagram_import_media($media) {
 
       $node_title = '@' . $parent->title . ' - Instagram import ' . $media->id;
 
-      // Prepare dummy and return in case of dry run.
-      if (isset($GLOBALS['exhibition_instagram_dryrun'])) {
-        $dummy = new stdClass();
-        $dummy->title = $node_title;
-        $dummy->nid = '';
-        $dummy->existing_entity = FALSE;
-        return $dummy;
+      $node = exhibition_instagram_get_entity('node', FALSE, array('field_imported_id' => array('value' => $media->id)));
+
+      // For the moment, we don't support update-imports.
+      if (is_object($node)) {
+        exhibition_instagram_log('Existing node %nid found for %media_id => skipping.', array('%nid' => $node->nid, '%media_id' => $media->id), FALSE, TRUE);
+        return TRUE;
       }
+      else {
 
-      // Try to find existing node.
-      $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $media->id)), array(
-        'type' => 'visual',
-        'status' => 0,
-        'language' => 'en',
-        'title' => $node_title,
-      ));
-      $existing_node = isset($node->existing_entity);
-
-      // Fill fields.
-      if (!$existing_node) {
-        $node->importing = TRUE;
-        $node->status = 1;
-        $node->translations->original = $node->language;
-        $node->created = $node->modified = $media->created_time;
-        $node->uid = $GLOBALS['user']->uid;
-        $node->field_imported[LANGUAGE_NONE][0]['value'] = 1;
-        $node->field_visual_purpose[LANGUAGE_NONE][0]['value'] = 'detail';
-        $node->field_epoch[LANGUAGE_NONE][0]['tid'] = variable_get('exhibition_instagram_epoch_tid', 5); // "2015"
-        $node->field_priority[LANGUAGE_NONE][0]['value'] = 0;
-        $node->field_imported_id[LANGUAGE_NONE][0]['value'] = $media->id;
-        $node->field_imported_time[LANGUAGE_NONE][0]['value'] = REQUEST_TIME;
-        $node->field_source[LANGUAGE_NONE][0]['title'] = 'everydaySrebrenica@Instagram';
-        $node->field_source[LANGUAGE_NONE][0]['url'] = $media->link;
-      }
-      $node->field_imported_data[LANGUAGE_NONE][0]['value'] = json_encode($media);
-      $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] = $parent->nid;
-
-      // Populate field_caption in EN and BS.
-      foreach(array('en', 'bs') as $lang_delta => $lang_key) {
-        $caption = isset($captions[$lang_delta]) ? $captions[$lang_delta] : '';
-
-        // Remove hashtags in and from the caption itself.
-        $caption = preg_replace('/#[\w\-.]+/', '', $caption);
-
-        $node->field_visual_caption[$lang_key][0]['value'] = $caption;
-        // Ensure translations are correctly managed.
-        $node->translations->data[$lang_key] = array(
-          'entity_type' => 'node',
-          'entity_id' => $node->nid,
-          'revision_id' => $node->vid,
-          'language' => $lang_key,
-          'source' => $node->language,
-          'uid' => $GLOBALS['user']->uid,
-          'status' => 1,
-          'translate' => 0,
-          'created' => $media->created_time,
-          'changed' => $media->created_time,
-        );
-      }
-
-      // Import tags.
-      $tag_vocabulary = taxonomy_vocabulary_machine_name_load('tag');
-      foreach ($media->tags as $tag) {
-        $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
-        if (!isset($term->existing_entity)) {
-          exhibition_instagram_log('New term %tid "%name" imported.', array('%tid' => $term->tid, '%name' => $term->name), FALSE, TRUE);
+        // Prepare dummy and return in case of dry run.
+        if (isset($GLOBALS['exhibition_instagram_dryrun'])) {
+          $dummy = new stdClass();
+          $dummy->title = $node_title;
+          $dummy->nid = '';
+          $dummy->existing_entity = FALSE;
+          return $dummy;
         }
-        $term->field_imported[LANGUAGE_NONE][0]['value'] = 1;
-        taxonomy_term_save($term);
-        // @Todo Avoid duplicate tags when running update-imports.
-        $node->field_tag[LANGUAGE_NONE][]['tid'] = $term->tid;
-      }
 
-      // Import image file for new imports.
-      if (!isset($node->existing_entity)) {
-        if (!empty($media->images->standard_resolution->url)) {
-          $url = $media->images->standard_resolution->url;
-          $local_file_path = 'public://field_image_file__imported';
-          file_prepare_directory($local_file_path, FILE_CREATE_DIRECTORY);
-          $local_file_path .= '/' . $node->nid . '--' . $media->id . '.jpg';
-          $file_result = exhibition_instagram_store_file($url, $node, 'field_image_file', $local_file_path);
-          if ($file_result) {
-            exhibition_instagram_log('Successfully imported and stored file %url.', array('%url' => $url), FALSE, TRUE);
+        // Try to find existing node.
+        $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $media->id)), array(
+          'type' => 'visual',
+          'status' => 0,
+          'language' => 'en',
+          'title' => $node_title,
+        ));
+        $existing_node = isset($node->existing_entity);
+
+        // Fill fields.
+        if (!$existing_node) {
+          $node->importing = TRUE;
+          $node->status = 1;
+          $node->translations->original = $node->language;
+          $node->created = $node->modified = $media->created_time;
+          $node->uid = $GLOBALS['user']->uid;
+          $node->field_imported[LANGUAGE_NONE][0]['value'] = 1;
+          $node->field_visual_purpose[LANGUAGE_NONE][0]['value'] = 'detail';
+          $node->field_epoch[LANGUAGE_NONE][0]['tid'] = variable_get('exhibition_instagram_epoch_tid', 5); // "2015"
+          $node->field_priority[LANGUAGE_NONE][0]['value'] = 0;
+          $node->field_imported_id[LANGUAGE_NONE][0]['value'] = $media->id;
+          $node->field_imported_time[LANGUAGE_NONE][0]['value'] = REQUEST_TIME;
+          $node->field_source[LANGUAGE_NONE][0]['title'] = 'everydaySrebrenica@Instagram';
+          $node->field_source[LANGUAGE_NONE][0]['url'] = $media->link;
+        }
+        $node->field_imported_data[LANGUAGE_NONE][0]['value'] = json_encode($media);
+        $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] = $parent->nid;
+
+        // Populate field_caption in EN and BS.
+        foreach(array('en', 'bs') as $lang_delta => $lang_key) {
+          $caption = isset($captions[$lang_delta]) ? $captions[$lang_delta] : '';
+
+          // Remove hashtags in and from the caption itself.
+          $caption = preg_replace('/#[\w\-.]+/', '', $caption);
+
+          $node->field_visual_caption[$lang_key][0]['value'] = $caption;
+          // Ensure translations are correctly managed.
+          $node->translations->data[$lang_key] = array(
+            'entity_type' => 'node',
+            'entity_id' => $node->nid,
+            'revision_id' => $node->vid,
+            'language' => $lang_key,
+            'source' => $node->language,
+            'uid' => $GLOBALS['user']->uid,
+            'status' => 1,
+            'translate' => 0,
+            'created' => $media->created_time,
+            'changed' => $media->created_time,
+          );
+        }
+
+        // Import tags.
+        $tag_vocabulary = taxonomy_vocabulary_machine_name_load('tag');
+        foreach ($media->tags as $tag) {
+          $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
+          if (!isset($term->existing_entity)) {
+            exhibition_instagram_log('New term %tid "%name" imported.', array('%tid' => $term->tid, '%name' => $term->name), FALSE, TRUE);
+          }
+          $term->field_imported[LANGUAGE_NONE][0]['value'] = 1;
+          taxonomy_term_save($term);
+          // @Todo Avoid duplicate tags when running update-imports.
+          $node->field_tag[LANGUAGE_NONE][]['tid'] = $term->tid;
+        }
+
+        // Import image file for new imports.
+        if (!isset($node->existing_entity)) {
+          if (!empty($media->images->standard_resolution->url)) {
+            $url = $media->images->standard_resolution->url;
+            $local_file_path = 'public://field_image_file__imported';
+            file_prepare_directory($local_file_path, FILE_CREATE_DIRECTORY);
+            $local_file_path .= '/' . $node->nid . '--' . $media->id . '.jpg';
+            $file_result = exhibition_instagram_store_file($url, $node, 'field_image_file', $local_file_path);
+            if ($file_result) {
+              exhibition_instagram_log('Successfully imported and stored file %url.', array('%url' => $url), FALSE, TRUE);
+            }
+            else {
+              exhibition_instagram_log('FAILED to import and store file %url', array('%url' => $url), TRUE, TRUE);
+            }
           }
           else {
-            exhibition_instagram_log('FAILED to import and store file %url', array('%url' => $url), TRUE, TRUE);
+            if (!file_result) {
+              exhibition_instagram_log('No image file for standard resolution found in instagram response for importing %media_id.', array('%media_id' => $media->id), TRUE, TRUE);
+            }
           }
         }
-        else {
-          if (!file_result) {
-            exhibition_instagram_log('No image file for standard resolution found in instagram response for importing %media_id.', array('%media_id' => $media->id), TRUE, TRUE);
-          }
-        }
-      }
 
-      node_save($node);
-      $result = $node;
+        node_save($node);
+        $result = $node;
+      }
     }
     // (If no parent relationship found).
     else {
@@ -483,7 +503,7 @@ function exhibition_instagram_store_file($url, &$node, $field_name, $local_file_
 /**
  * Implements hook_node_presave().
  */
-function exhibition_instagram_node_presave(&$node) {
+function exhibition_instagram_node_presave($node) {
   if (isset($node->importing)) {
     $node->changed = $node->modified;
   }
