@@ -420,6 +420,21 @@ function exhibition_content_get_intro_content() {
 
 
 /**
+ * Get a field from a detail node.
+ */
+function exhibition_content_get_detail_content($title_id) {
+  $node = exhibition_base_get_entity('node', FALSE, array('type' => 'detail', 'title' => $title_id));
+  $lang = field_language('node', $node, 'field_text');
+  if (is_object($node) && isset($node->field_text[$lang])) {
+    return $node->field_text[$lang][0]['value'];
+  }
+  else {
+    return '';
+  }
+}
+
+
+/**
  * Get the overview page content
  *
  */
