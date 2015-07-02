@@ -341,26 +341,39 @@ function exhibition_content_get_overview_content($pager = 0) {
   $nodes = entity_load('node', array_keys($result['node']));
 
   // Mark latest feature visuals for each portrait.
-  foreach($nodes as $node) {
+  foreach($nodes as $nid => $node) {
     $purpose  = @$node->field_visual_purpose[LANGUAGE_NONE][0]['value'];
     $parent = isset($node->field_parent_content[LANGUAGE_NONE][0]['target_id']) ? $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] : 0;
     if (!isset($main_featured_visuals[$parent]) &&  ('featured' == $purpose)) {
-      $main_featured_visuals[$parent] = TRUE;
       $node->main_featured_visual = TRUE;
+      $main_featured_visuals[$parent] = $node;
+      unset($nodes[$nid]);
     }
   }
 
   // Seed with created time of first node for consistent results that change only when result set changes.
-  $rest = array_values($nodes);
-  srand($rest[0]->created);
-  mt_srand($rest[0]->created);
+  $rest = $nodes; //array_values($nodes);
+  //srand(count($rest));
+  //mt_srand(count($rest));
 
-  $newest = array_splice($rest, 0, 7);
+  // Split main featured visuals in 1/3 (=> for $above) and 2/3 (for $rest).
+  shuffle($main_featured_visuals);
+  $main_featured_visuals_above = array_splice($main_featured_visuals, 0, floor(count($main_featured_visuals) / 3));
+
+  // Split off newest few for chronological display on very top.
+  $newest = array_splice($rest, 0, 5);
+
+  // Shuffle rest
   shuffle($rest);
-  $above = array_splice($rest, 0, 40);
-  // @Todo add 3 (or the "promoted") text tiles (maybe with random color-/size-assignment?)
+  // Split off some for display $above, add intro contents and main_featured_visuals_above and shuffle all those.
+  $above = array_merge(array_splice($rest, 0, 20), exhibition_content_get_intro_content(), $main_featured_visuals_above);
   shuffle($above);
 
+  // Add rest main_featured_visuals to rest and shuffle again.
+  $rest = array_merge($rest, $main_featured_visuals);
+  shuffle($rest);
+
+  // Combine.
   $all = array_merge($newest, $above, $rest);
   // dpm(count(nodes) . ' = ' . count($all) . ' = ' . count($newest) . ' + ' . count($above) . ' + ' . count($rest));
 
@@ -371,6 +384,41 @@ function exhibition_content_get_overview_content($pager = 0) {
   }
 
   return $build;
+}
+
+
+/**
+ * Randomly distributed one set of items into another set of items.
+ *
+ * @param $array_heap
+ * @param $array_inserts
+ * @param $min_pos
+ * @param int $max_pos
+ */
+function _exhibition_content_array_random_insert(&$array_heap, $array_inserts, $min_pos, $max_pos = 0) {
+  if (!$max_pos) { $max_pos = count($array_heap) + 1; }
+  $stepwidth = max(1, floor(($max_pos-$min_pos) / count($array_inserts)));
+  foreach(array_values($array_inserts) as $delta => $item) {
+    $pos = rand($min_pos, max($min_pos, $min_pos+$stepwidth-1));
+    array_splice($array_heap, $pos, 0, $item);
+    $min_pos = $pos+2;
+    $stepwidth += floor($delta / count($array_inserts));
+  }
+}
+
+
+/**
+ * Assembles the intro tile for the frontpage.
+ */
+function exhibition_content_get_intro_content() {
+  $nodes = array();
+  // @Todo add 3 (or the "promoted") text tiles (maybe with random color-/size-assignment?)
+  foreach(array('intro_title', 'intro_info', 'intro_engage') as $title_id) {
+    $intro_node = exhibition_base_get_entity('node', FALSE, array('type' => 'detail', 'title' => $title_id));
+    if (is_object($intro_node)) { $nodes[] = $intro_node; }
+  }
+
+  return $nodes;
 }
 
 
