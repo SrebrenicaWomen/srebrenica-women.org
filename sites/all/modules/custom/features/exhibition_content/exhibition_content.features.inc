@@ -41,7 +41,7 @@ function exhibition_content_node_info() {
       'base' => 'node_content',
       'description' => t('A detail, snippet, fact etc to be embedded or listed.'),
       'has_title' => '1',
-      'title_label' => t('Working title'),
+      'title_label' => t('Internal Identifier'),
       'help' => '',
     ),
     'page' => array(

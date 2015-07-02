@@ -83,11 +83,11 @@ function exhibition_content_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Options',
-    'weight' => '6',
+    'weight' => '8',
     'children' => array(
       0 => 'field_test_content',
-      1 => 'language',
-      2 => 'field_embed_code',
+      1 => 'field_embed_code',
+      2 => 'language',
     ),
     'format_type' => 'tab',
     'format_settings' => array(

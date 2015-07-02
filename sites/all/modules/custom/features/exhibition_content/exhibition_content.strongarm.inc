@@ -21,7 +21,7 @@ function exhibition_content_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'additional_settings__active_tab_detail';
-  $strongarm->value = 'edit-workflow';
+  $strongarm->value = 'edit-diff';
   $export['additional_settings__active_tab_detail'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -161,7 +161,7 @@ function exhibition_content_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'entity_translation_hide_translation_links_detail';
-  $strongarm->value = 0;
+  $strongarm->value = 1;
   $export['entity_translation_hide_translation_links_detail'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -327,7 +327,32 @@ function exhibition_content_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'field_bundle_settings_node__detail';
   $strongarm->value = array(
-    'view_modes' => array(),
+    'view_modes' => array(
+      'teaser' => array(
+        'custom_settings' => FALSE,
+      ),
+      'feature' => array(
+        'custom_settings' => FALSE,
+      ),
+      'detail' => array(
+        'custom_settings' => FALSE,
+      ),
+      'detail_square' => array(
+        'custom_settings' => FALSE,
+      ),
+      'full' => array(
+        'custom_settings' => FALSE,
+      ),
+      'rss' => array(
+        'custom_settings' => FALSE,
+      ),
+      'diff_standard' => array(
+        'custom_settings' => FALSE,
+      ),
+      'token' => array(
+        'custom_settings' => FALSE,
+      ),
+    ),
     'extra_fields' => array(
       'form' => array(
         'title' => array(
@@ -483,7 +508,6 @@ function exhibition_content_strongarm() {
   $strongarm->name = 'node_options_detail';
   $strongarm->value = array(
     0 => 'status',
-    1 => 'promote',
   );
   $export['node_options_detail'] = $strongarm;
 

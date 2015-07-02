@@ -72,9 +72,8 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
+        'type' => 'hidden',
         'weight' => 7,
       ),
       'detail' => array(
@@ -132,10 +131,9 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 3,
+        'type' => 'hidden',
+        'weight' => 4,
       ),
       'detail' => array(
         'label' => 'above',
@@ -175,7 +173,42 @@ Only the administrator and chiefeditor roles are able to use this field for secu
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 4,
+      'weight' => 6,
+    ),
+  );
+
+  // Exported field_instance: 'node-detail-field_headline'
+  $field_instances['node-detail-field_headline'] = array(
+    'bundle' => 'detail',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_headline',
+    'label' => 'Headline',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 2,
     ),
   );
 
@@ -188,12 +221,9 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 1,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 2,
       ),
       'detail' => array(
         'label' => 'above',
@@ -237,7 +267,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 3,
+      'weight' => 5,
     ),
   );
 
@@ -250,14 +280,8 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'number',
-        'settings' => array(
-          'decimal_separator' => '.',
-          'prefix_suffix' => TRUE,
-          'scale' => 0,
-          'thousand_separator' => ' ',
-        ),
-        'type' => 'number_integer',
+        'settings' => array(),
+        'type' => 'hidden',
         'weight' => 6,
       ),
       'detail' => array(
@@ -302,7 +326,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
       'module' => 'number',
       'settings' => array(),
       'type' => 'number',
-      'weight' => 5,
+      'weight' => 7,
     ),
   );
 
@@ -315,10 +339,9 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 4,
+        'type' => 'hidden',
+        'weight' => 5,
       ),
       'detail' => array(
         'label' => 'above',
@@ -361,7 +384,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'size' => 60,
       ),
       'type' => 'taxonomy_autocomplete',
-      'weight' => 2,
+      'weight' => 4,
     ),
   );
 
@@ -378,10 +401,9 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'list',
         'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 5,
+        'type' => 'hidden',
+        'weight' => 3,
       ),
       'detail' => array(
         'label' => 'above',
@@ -427,52 +449,28 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     ),
   );
 
-  // Exported field_instance: 'node-detail-field_visual_caption'
-  $field_instances['node-detail-field_visual_caption'] = array(
+  // Exported field_instance: 'node-detail-field_text'
+  $field_instances['node-detail-field_text'] = array(
     'bundle' => 'detail',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'The caption or short text of this detail content.',
+    'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 2,
-      ),
-      'detail' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'detail_square' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'feature' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 1,
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_visual_caption',
-    'label' => 'Caption',
+    'field_name' => 'field_text',
+    'label' => 'Text',
     'required' => 0,
     'settings' => array(
       'entity_translation_sync' => FALSE,
-      'text_processing' => 0,
+      'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -482,7 +480,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 1,
+      'weight' => 3,
     ),
   );
 
@@ -2118,6 +2116,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
   t('For internal distinction only.');
   t('Has this content been imported?');
   t('Has this tag been imported?');
+  t('Headline');
   t('ID of imported item at source.');
   t('Image file');
   t('Import tag');
@@ -2140,7 +2139,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
   t('Tag');
   t('Tag to use for associating imported Instagram posts with this portrait.');
   t('Test content');
-  t('The caption or short text of this detail content.');
+  t('Text');
   t('The caption, brief story or explanation for this visual.');
   t('The main content this piece of content is part of.');
   t('The original creator of this visual published in its detail view.');
