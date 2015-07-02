@@ -410,9 +410,11 @@ function exhibition_content_get_intro_content() {
   // @Todo add 3 (or the "promoted") text tiles (maybe with random color-/size-assignment?)
   foreach(array('intro_title', 'intro_info', 'intro_engage') as $title_id) {
     $intro_node = exhibition_base_get_entity('node', FALSE, array('type' => 'detail', 'title' => $title_id));
-    $intro_node->style_override = "intro-tile";
-    $intro_node->style_additional = $title_id;
-    if (is_object($intro_node)) { $nodes[] = $intro_node; }
+    if (is_object($intro_node)) {
+      $intro_node->style_override = "intro-tile";
+      $intro_node->style_additional = $title_id;
+      $nodes[] = $intro_node;
+    }
   }
 
   return $nodes;
