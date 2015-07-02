@@ -59,3 +59,63 @@ function exhibition_base_url_outbound_alter(&$path, &$options, $original_path) {
 //  }
 }
 
+
+/**
+ * Gets an entity with given EFQ criteria or optionally creates one if none is found.
+ *
+ * Examples:
+ *     $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
+ *
+ *     $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $id)), array(
+ *       'type' => 'visual',
+ *       'status' => 0,
+ *       'language' => 'en',
+ *       'title' => 'Instagram import ' . $media->id,
+ *      ));
+ */
+function exhibition_base_get_entity($entity_type, $create_if_missing, $criteria, $defaults = array()) {
+  // Try to retrieve an existing entity matching the $criteria using an entity field query.
+  $entity = FALSE;
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', $entity_type)->range(0, 1);
+  foreach($criteria as $criterion_key => $criterion_value) {
+    // "field_*"-criterion => construct field condition.
+    if ('field_' == substr($criterion_key, 0, 6)) {
+      $criterion_value_field = @reset(array_keys($criterion_value));
+      $criterion_value_data  = @reset($criterion_value);
+      $query->fieldCondition($criterion_key, $criterion_value_field, $criterion_value_data);
+    }
+    // Property criterion => construct property condition.
+    else {
+      $defaults[$criterion_key] = $criterion_value;
+      $query->propertyCondition($criterion_key, $criterion_value);
+    }
+  }
+
+  $result = $query->execute();
+
+  // If matching entity is found and returned, use that.
+  if (isset($result[$entity_type])) {
+    $entity = @reset(entity_load($entity_type, array_keys($result[$entity_type])));
+    $entity->existing_entity = TRUE;
+  }
+  else if ($create_if_missing) {
+    // If no matching existing entity found, create new one.
+    $entity = new stdClass();
+    foreach ($defaults as $default_key => $default_value) {
+      $entity->{$default_key} = $default_value;
+    }
+
+    // Special treatment for some entity types.
+    if ('node' == $entity_type) {
+      node_object_prepare($entity);
+    }
+
+    // Save entity to make it come alive and have its id set.
+    entity_save($entity_type, $entity);
+  }
+
+  return $entity;
+}
+

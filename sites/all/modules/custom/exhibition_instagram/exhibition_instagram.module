@@ -287,7 +287,7 @@ function exhibition_instagram_import_media($media) {
 
       $node_title = '@' . $parent->title . ' - Instagram import ' . $media->id;
 
-      $node = exhibition_instagram_get_entity('node', FALSE, array('field_imported_id' => array('value' => $media->id)));
+      $node = exhibition_base_get_entity('node', FALSE, array('field_imported_id' => array('value' => $media->id)));
 
       // For the moment, we don't support update-imports.
       if (is_object($node)) {
@@ -306,7 +306,7 @@ function exhibition_instagram_import_media($media) {
         }
 
         // Try to find existing node.
-        $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $media->id)), array(
+        $node = exhibition_base_get_entity('node', TRUE, array('field_imported_id' => array('value' => $media->id)), array(
           'type' => 'visual',
           'status' => 0,
           'language' => 'en',
@@ -359,7 +359,7 @@ function exhibition_instagram_import_media($media) {
         // Import tags.
         $tag_vocabulary = taxonomy_vocabulary_machine_name_load('tag');
         foreach ($media->tags as $tag) {
-          $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
+          $term = exhibition_base_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
           if (!isset($term->existing_entity)) {
             exhibition_instagram_log('New term %tid "%name" imported.', array('%tid' => $term->tid, '%name' => $term->name), FALSE, TRUE);
           }
@@ -409,67 +409,6 @@ function exhibition_instagram_import_media($media) {
 }
 
 
-
-/**
- * Gets an entity with given EFQ criteria or optionally creates one if none is found.
- *
- * Examples:
- *     $term = exhibition_instagram_get_entity('taxonomy_term', TRUE, array('name' => $tag, 'vid' => $tag_vocabulary->vid), array('bundle' => 'tag'));
- *
- *     $node = exhibition_instagram_get_entity('node', TRUE, array('field_imported_id' => array('value' => $id)), array(
- *       'type' => 'visual',
- *       'status' => 0,
- *       'language' => 'en',
- *       'title' => 'Instagram import ' . $media->id,
- *      ));
- */
-function exhibition_instagram_get_entity($entity_type, $create_if_missing, $criteria, $defaults = array()) {
-  // Try to retrieve an existing entity matching the $criteria using an entity field query.
-  $entity = FALSE;
-
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', $entity_type)->range(0, 1);
-  foreach($criteria as $criterion_key => $criterion_value) {
-    // "field_*"-criterion => construct field condition.
-    if ('field_' == substr($criterion_key, 0, 6)) {
-      $criterion_value_field = @reset(array_keys($criterion_value));
-      $criterion_value_data  = @reset($criterion_value);
-      $query->fieldCondition($criterion_key, $criterion_value_field, $criterion_value_data);
-    }
-    // Property criterion => construct property condition.
-    else {
-      $defaults[$criterion_key] = $criterion_value;
-      $query->propertyCondition($criterion_key, $criterion_value);
-    }
-  }
-
-  $result = $query->execute();
-
-  // If matching entity is found and returned, use that.
-  if (isset($result[$entity_type])) {
-    $entity = @reset(entity_load($entity_type, array_keys($result[$entity_type])));
-    $entity->existing_entity = TRUE;
-  }
-  else if ($create_if_missing) {
-    // If no matching existing entity found, create new one.
-    $entity = new stdClass();
-    foreach ($defaults as $default_key => $default_value) {
-      $entity->{$default_key} = $default_value;
-    }
-
-    // Special treatment for some entity types.
-    if ('node' == $entity_type) {
-      node_object_prepare($entity);
-    }
-
-    // Save entity to make it come alive and have its id set.
-    entity_save($entity_type, $entity);
-  }
-
-  return $entity;
-}
-
-
 /**
  * Determine parent content from tag matching the tag configured on a portait node.
  */
@@ -477,7 +416,7 @@ function exhibition_instagram_get_parent_by_import_tag($tag) {
   static $parents_by_tag = array();
 
   if (!isset($parents_by_tag[$tag])) {
-    $parent = exhibition_instagram_get_entity('node', FALSE, array('field_import_tag' => array('value' => $tag)));
+    $parent = exhibition_base_get_entity('node', FALSE, array('field_import_tag' => array('value' => $tag)));
     $parents_by_tag[$tag] = $parent;
   }
 
