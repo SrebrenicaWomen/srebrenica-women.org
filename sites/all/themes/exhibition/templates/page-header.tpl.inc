@@ -9,14 +9,14 @@
         $lang_link = l($lang_name, current_path(), array('language' => $lang_object));
         $lang_list[] = $lang_link;
       }
-      print theme('item_list', array('items' => $lang_list))
+      print implode('', $lang_list); // theme('item_list', array('items' => $lang_list))
     ?>
   </div>
-  <div class="intro blurb">
+  <?php if ('overview' != current_path()) { ?>
+  <div class="page-header-content intro blurb">
     <h1><?php print l(t(variable_get('site_name', 'Srebrenica Women')), '<front>'); ?></h1>
-    <p><?php print t("We are 12 women from Srebrenica using photography to talk about our personal life in Bosnia nowadays:"); ?>
-    <h2><i>Our View</i>, our <a href="http://www.instagram.com/everydaysrebrenica">#EVERYDAYSREBRENICA</a></h2>
   </div>
+  <?php } ?>
   <div class="portrait-navigation">
     <?php if (function_exists('exhibition_content_get_portrait_navigation')) { $thumbs = exhibition_content_get_portrait_navigation(); print render($thumbs); } ?>
   </div>

@@ -7,8 +7,8 @@
       <?php if (!empty($tile_title) || !empty($tile_caption)) { ?>
         <figcaption>
           <div class="tile-info">
-            <div class="field-title"><?php print render($tile_title); ?></div>
-            <div class="field-caption"><?php print render($tile_caption); ?></div>
+            <?php if (!empty($tile_title))   { ?><div class="field-title"><?php print render($tile_title); ?></div><?php } ?>
+            <?php if (!empty($tile_caption)) { ?><div class="field-caption"><?php print render($tile_caption); ?></div><?php } ?>
           </div>
         </figcaption>
     <?php } ?>

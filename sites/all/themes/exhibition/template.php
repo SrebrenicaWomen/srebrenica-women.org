@@ -30,8 +30,7 @@ function exhibition_theme($existing, $type, $theme, $path) {
  * Implementation of hook_preprocess_node().
  */
 function exhibition_preprocess_node(&$vars, $hook) {
-  static $tile_style_cycle = 0;
-
+  //static $tile_style_cycle = 0;
   $node = $vars['node'];
   $type = $vars['type'];
   $view_mode = $vars['view_mode'];
@@ -42,11 +41,27 @@ function exhibition_preprocess_node(&$vars, $hook) {
   $vars['theme_hook_suggestions'][] = 'node__' . $type . '__' . $view_mode;
   //$vars['theme_hook_suggestions'][] = 'tile';
 
-  $GLOBALS['tile_style'] = ((isset($GLOBALS['tile_style']) ? $GLOBALS['tile_style'] : -1)+1) % 4;
-  $vars['tile_style'] = $GLOBALS['tile_style'];
+  // Determine additional extra classes.
+  $extra_classes = '';
+  $extra_classes = 'viewmode-' . drupal_html_class($view_mode);
+  if (isset($node->style_override)) {
+    $extra_classes = drupal_html_class($node->style_override);
+  }
+  if (isset($node->style_additional)) {
+    $extra_classes .= ' ' . drupal_html_class($node->style_additional);
+  }
+  $vars['tile_class'] = $extra_classes;
 
-  if (in_array($type, array('visual', 'detail'))) {
-    $vars['tile_class'] = 'viewmode-' . str_replace('_', '-', $view_mode);
+
+  // Handle tiles for detail node type.
+  if ('detail' == $type) {
+    $vars['tile_title'] = isset($vars['content']['field_headline']) ? $vars['content']['field_headline'][0]['#markup'] : '';
+    $vars['tile_caption'] = isset($vars['content']['field_text']) ? $vars['content']['field_text'][0]['#markup'] : '';
+    $vars['tile_style'] = ('visual' == $type) ? 2 : 0;
+  }
+
+  // Handle tiles for visual node type.
+  if (in_array($type, array('visual'/*, 'detail'*/))) {
 
     // Replace title with parent content's title.
     $parent = FALSE;
@@ -69,26 +84,25 @@ function exhibition_preprocess_node(&$vars, $hook) {
     $vars['tile_visual']  = $vars['content']['field_image_file'];
     $vars['tile_title']   = $vars['title'];
     if ('teaser' == $view_mode) {
-      // Link tile to the visual's parent node.
-      if (isset($node->field_parent_content[LANGUAGE_NONE])) {
-        $vars['tile_url'] = url('node/' . $node->field_parent_content[LANGUAGE_NONE][0]['target_id'], array('fragment' => 'tile-' . $node->nid));
+      if ('visual' == $type) {
+        // Link tile to the visual's parent node.
+        if (isset($node->field_parent_content[LANGUAGE_NONE])) {
+          $vars['tile_url'] = url('node/' . $node->field_parent_content[LANGUAGE_NONE][0]['target_id'], array('fragment' => 'tile-' . $node->nid));
+        }
+        unset($vars['tile_caption']);
+        if ($type != 'detail') {
+          unset($vars['tile_title']);
+        }
+        $vars['tile_visual'] = array(
+          '#theme' => 'image_formatter',
+          '#image_style' => isset($node->main_featured_visual) ? 'teaser_square' : 'teaser_square_small',
+          '#item' => array(
+            'uri' => $node->field_image_file[LANGUAGE_NONE][0]['uri'],
+            'title' => $overlay_caption,
+            'alt' => $overlay_caption,
+          ),
+        );
       }
-      unset($vars['tile_caption']);
-      if ($type != 'detail') {
-        unset($vars['tile_title']);
-      }
-      if (isset($node->main_featured_visual)) {
-        $vars['tile_class'] = 'teaser-big';
-      }
-      $vars['tile_visual'] = array(
-        '#theme' => 'image_formatter',
-        '#image_style' => isset($node->main_featured_visual) ? 'teaser_square' : 'teaser_square_small',
-        '#item' => array(
-          'uri' => $node->field_image_file[LANGUAGE_NONE][0]['uri'],
-          'title' => $overlay_caption,
-          'alt' => $overlay_caption,
-        ),
-      );
     }
     if ('detail' == $view_mode) {
       unset($vars['tile_title']);
@@ -103,7 +117,7 @@ function exhibition_preprocess_node(&$vars, $hook) {
 
     // For teaser view mode, use tile style 3 (title/caption slide up on hover).
     if ('teaser' == $view_mode) {
-      $vars['tile_style'] = 2;
+      $vars['tile_style'] = ('visual' == $type) ? 2 : 0;
     }
     // For feature view mode, use tile style 2 (title+caption static with floor fade).
     else if ('feature' == $view_mode) {
@@ -146,8 +160,6 @@ function exhibition_preprocess_node(&$vars, $hook) {
 //      );
 //    }
   }
-
-
 }
 
 

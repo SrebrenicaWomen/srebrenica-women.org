@@ -20,7 +20,8 @@ h1 {
     margin: 0.5em 0 1em;
 }
 .page-node .page-header h1 {
-    font-size: 20px;
+    font-size: 32px;
+    padding: 0.25em;
     display: inline;
 }
 
@@ -60,15 +61,18 @@ ul {
 
 .language-switcher {
     float: right;
+    padding: 0.25em;
+}
+.language-switcher a {
+    padding-left: 1em;
 }
 
 a {
   text-decoration: none;
 }
 
-.page-header {
+.page-header .page-header-content {
     background: white;
-    border-bottom: 10px solid #ddd;
     padding: 0.5em 0.5em 0em;
 }
 
@@ -350,6 +354,14 @@ a {
 }
 
 
+/*     I N T R O    T I L E S    */
+
+.intro-title  figcaption { background: #fff; color: #002; text-shadow: none; }
+.intro-info   figcaption { background: #fff15b; color: #002; text-shadow: none; }
+.intro-engage figcaption { background: #f84533; color: #fff; text-shadow: none; }
+    .intro-engage figcaption a { text-transform: uppercase; color: #fff; }
+.intro-tile h1, .intro-tile h2 { margin: 0; }
+
 /*     L A Z Y   L O A D I N G   */
 
 img.lazy-waiting {
@@ -385,6 +397,14 @@ img.lazy-waiting {
     .info-tile figcaption .field-caption { display: none; }
 
     .viewmode-feature .field-caption { display: none; }
+
+    .intro-title  figcaption { width: 180px; height: 120px; }
+    .intro-title  figcaption h1 { font-size: 20px; }
+    .intro-info   figcaption { width: 240px; height: 240px; }
+    .intro-info   figcaption h2 { font-size: 20px; line-height: 28px; width: 200px; }
+    .intro-engage figcaption { width: 300px; height: 60px; }
+
+    .tile .tile-info { padding: 0.35em; }
 }
 
 @media screen and (min-width: 760px) and (max-width: 1199px) {
@@ -402,16 +422,34 @@ img.lazy-waiting {
            -moz-transform: translateY(0px) scale(1) !important;
         -webkit-transform: translateY(0px) scale(1) !important;
     }
+
+    .intro-title  figcaption { width: 300px; height: 100px; }
+    .intro-title  figcaption h1 { font-size: 26px; line-height: 28px; }
+    .intro-info   figcaption { width: 300px; height: 300px; }
+    .intro-info   figcaption h2 { font-size: 24px; line-height: 30px; width: 220px; }
+    .intro-engage figcaption { width: 500px; height: 100px; }
+    .intro-engage figcaption { font-size: 24px; line-height: 26px; }
+    .intro-engage figcaption a { font-size: 34px; }
+
+    .tile .tile-info { padding: 0.5em; }
 }
 
 @media screen and (min-width: 1200px) {
-    .teaser-big figure img { height: 300px; width: 300px; }
-    .viewmode-teaser, .viewmode-teaser img { height: 150px; width: 150px; }
+    .teaser-big figure img { height: 250px; width: 250px; }
+    .viewmode-teaser, .viewmode-teaser img { height: 125px; width: 125px; }
     .viewmode-detail, .viewmode-detail img { max-height: 300px; font-size: 100%; }
 
     .info-tile figcaption { height: 300px; width: 300px; }
 
     .viewmode-feature .field-caption { display: none; }
+
+    .intro-title  figcaption { width: 375px; height: 125px;}
+    .intro-title  figcaption h1 { font-size: 30px; line-height: 32px; }
+    .intro-info   figcaption { width: 375px; height: 375px; font-size: 32px; }
+    .intro-info   figcaption h2 { font-size: 26px; line-height: 40px; width: 250px; }
+    .intro-engage figcaption { width: 625px; height: 125px; }
+    .intro-engage figcaption { font-size: 26px; }
+    .intro-engage figcaption a { font-size: 44px; line-height: 60px; }
 }
 
 
