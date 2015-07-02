@@ -173,7 +173,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 6,
+      'weight' => 5,
     ),
   );
 
@@ -189,7 +189,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 0,
+        'weight' => 8,
       ),
     ),
     'entity_type' => 'node',
@@ -208,7 +208,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 2,
+      'weight' => 1,
     ),
   );
 
@@ -267,7 +267,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 5,
+      'weight' => 4,
     ),
   );
 
@@ -326,7 +326,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
       'module' => 'number',
       'settings' => array(),
       'type' => 'number',
-      'weight' => 7,
+      'weight' => 6,
     ),
   );
 
@@ -384,7 +384,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'size' => 60,
       ),
       'type' => 'taxonomy_autocomplete',
-      'weight' => 4,
+      'weight' => 3,
     ),
   );
 
@@ -480,7 +480,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 3,
+      'weight' => 2,
     ),
   );
 
