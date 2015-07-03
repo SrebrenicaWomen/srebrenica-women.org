@@ -73,8 +73,8 @@
 
 						var title = null, href = null;
 						
-						if( $(this).attr('title') )
-							title = $(this).attr('title');
+						if( $(this).attr('data-title') )
+							title = $(this).attr('data-title');
 
 						if( $(this).attr('href') )
 							href = $(this).attr('href');

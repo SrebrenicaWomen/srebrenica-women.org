@@ -98,7 +98,7 @@ function exhibition_preprocess_node(&$vars, $hook) {
           '#image_style' => isset($node->main_featured_visual) ? 'teaser_square' : 'teaser_square_small',
           '#item' => array(
             'uri' => $node->field_image_file[LANGUAGE_NONE][0]['uri'],
-            'title' => $overlay_caption,
+            //'title' => $overlay_caption,
             'alt' => $overlay_caption,
           ),
         );
@@ -112,7 +112,7 @@ function exhibition_preprocess_node(&$vars, $hook) {
       $image_path = $node->field_image_file[LANGUAGE_NONE][0]['uri'];
       $image_full_path = image_style_url('full', $image_path);
       $image_tag = theme('image_style', array('style_name' => 'full', 'path' => $image_path, 'alt' => $image_caption));
-      $vars['tile_visual'] = '<a href="' . $image_full_path . '" class="swipebox" title="' . $overlay_caption . '">' . $image_tag . '</a>';
+      $vars['tile_visual'] = '<a href="' . $image_full_path . '" class="swipebox" data-title="' . $overlay_caption . '">' . $image_tag . '</a>';
     }
 
     // For teaser view mode, use tile style 3 (title/caption slide up on hover).

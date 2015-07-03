@@ -42,4 +42,14 @@ function exhibition_base_update_7004() {
 }
 
 
+/**
+ * Implementation of hook_update_N().
+ *
+ * Activate ckeditor.module.
+ */
+function exhibition_base_update_7005() {
+  module_enable(array('ckeditor'));
+}
+
+
 // END OF FILE marker.
