@@ -250,13 +250,19 @@ a {
 
 .no-touch .tile-style-3 figure:hover img,
 .tile-style-3 figure.cs-hover img {
+    /* filter: url(blur.svg#blur); -webkit-filter: blur(2px); filter: blur(2px); filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius='2'); */
+    /*
             transform: translateY(-50px);
         -ms-transform: translateY(-50px);
        -moz-transform: translateY(-50px);
     -webkit-transform: translateY(-50px);
+    */
 }
 .tile-style-3 figcaption {
-    background: #001;
+    text-shadow: 1px 1px 2px black;
+    background: rgba(220, 220, 220, 0.5);
+    font-size: 85%;
+
             transform: translateY(100%);
         -ms-transform: translateY(100%);
        -moz-transform: translateY(100%);
@@ -326,13 +332,13 @@ a {
 
 #swipebox-caption {
     height: auto;
+    padding: 0.5em 0em 1.25em;
 
     font-size: 20px;
     line-height:32px;
     text-align: center;
 
-    text-shadow: 0 1px 0 black;
-
+/*
     background:
         linear-gradient(
             to bottom,
@@ -340,6 +346,9 @@ a {
             rgba(0, 0, 0, 0.35),
             rgba(0, 0, 0, 0.75)
         );
+ */
+    text-shadow: 1px 1px 2px black;
+    background: rgba(220, 220, 220, 0.5);
 }
 
 
