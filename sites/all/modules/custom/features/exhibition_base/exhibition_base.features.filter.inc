@@ -14,7 +14,7 @@ function exhibition_base_filter_default_formats() {
   $formats['filtered_html'] = array(
     'format' => 'filtered_html',
     'name' => 'Filtered HTML',
-    'cache' => 0,
+    'cache' => 1,
     'status' => 1,
     'weight' => 0,
     'filters' => array(
@@ -51,7 +51,7 @@ function exhibition_base_filter_default_formats() {
   $formats['full_html'] = array(
     'format' => 'full_html',
     'name' => 'Full HTML',
-    'cache' => 0,
+    'cache' => 1,
     'status' => 1,
     'weight' => 0,
     'filters' => array(
