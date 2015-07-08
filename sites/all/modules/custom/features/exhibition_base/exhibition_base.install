@@ -52,4 +52,14 @@ function exhibition_base_update_7005() {
 }
 
 
+/**
+ * Implementation of hook_update_N().
+ *
+ * Activate pathauto.module.
+ */
+function exhibition_base_update_7006() {
+  module_enable(array('pathauto'));
+}
+
+
 // END OF FILE marker.
