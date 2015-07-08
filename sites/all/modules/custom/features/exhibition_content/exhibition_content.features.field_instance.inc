@@ -71,10 +71,11 @@ function exhibition_content_field_default_field_instances() {
 Only the administrator and chiefeditor roles are able to use this field for security reasons.',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
+        'module' => 'text',
         'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 7,
+        'type' => 'text_default',
+        'weight' => 2,
       ),
       'detail' => array(
         'label' => 'above',
@@ -133,7 +134,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'detail' => array(
         'label' => 'above',
@@ -189,7 +190,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 8,
+        'weight' => 0,
       ),
     ),
     'entity_type' => 'node',
@@ -223,7 +224,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'detail' => array(
         'label' => 'above',
@@ -282,7 +283,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 7,
       ),
       'detail' => array(
         'label' => 'above',
@@ -341,7 +342,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 6,
       ),
       'detail' => array(
         'label' => 'above',
@@ -403,7 +404,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'detail' => array(
         'label' => 'above',
@@ -484,8 +485,8 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     ),
   );
 
-  // Exported field_instance: 'node-page-body'
-  $field_instances['node-page-body'] = array(
+  // Exported field_instance: 'node-page-field_headline'
+  $field_instances['node-page-field_headline'] = array(
     'bundle' => 'page',
     'default_value' => NULL,
     'deleted' => 0,
@@ -496,7 +497,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 0,
+        'weight' => 1,
       ),
       'detail' => array(
         'label' => 'above',
@@ -517,33 +518,88 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'weight' => 0,
       ),
       'teaser' => array(
-        'label' => 'hidden',
-        'module' => 'text',
-        'settings' => array(
-          'trim_length' => 600,
-        ),
-        'type' => 'text_summary_or_trimmed',
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
         'weight' => 0,
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'body',
-    'label' => 'Body',
-    'required' => FALSE,
+    'field_name' => 'field_headline',
+    'label' => 'Headline',
+    'required' => 0,
     'settings' => array(
-      'display_summary' => TRUE,
+      'entity_translation_sync' => FALSE,
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 0,
+    ),
+  );
+
+  // Exported field_instance: 'node-page-field_text'
+  $field_instances['node-page-field_text'] = array(
+    'bundle' => 'page',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 2,
+      ),
+      'detail' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'detail_square' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'feature' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_text',
+    'label' => 'Text',
+    'required' => 0,
+    'settings' => array(
       'entity_translation_sync' => FALSE,
       'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
+      'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 20,
-        'summary_rows' => 5,
+        'rows' => 25,
       ),
-      'type' => 'text_textarea_with_summary',
-      'weight' => 6,
+      'type' => 'text_textarea',
+      'weight' => 1,
     ),
   );
 
@@ -1052,7 +1108,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 9,
+        'weight' => 10,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1109,9 +1165,8 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_plain',
+        'type' => 'hidden',
         'weight' => 3,
       ),
       'detail' => array(
@@ -1277,7 +1332,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 8,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1334,7 +1389,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 8,
+        'weight' => 9,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1392,7 +1447,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 7,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1448,15 +1503,9 @@ Only the administrator and chiefeditor roles are able to use this field for secu
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'number',
-        'settings' => array(
-          'decimal_separator' => '.',
-          'prefix_suffix' => TRUE,
-          'scale' => 0,
-          'thousand_separator' => ' ',
-        ),
-        'type' => 'number_integer',
-        'weight' => 15,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1515,7 +1564,7 @@ Only the administrator and chiefeditor roles are able to use this field for secu
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 12,
+        'weight' => 13,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1576,7 +1625,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 13,
+        'weight' => 14,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1633,9 +1682,8 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'link',
         'settings' => array(),
-        'type' => 'link_default',
+        'type' => 'hidden',
         'weight' => 4,
       ),
       'detail' => array(
@@ -1711,9 +1759,8 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
+        'type' => 'hidden',
         'weight' => 5,
       ),
       'detail' => array(
@@ -1776,7 +1823,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 14,
+        'weight' => 15,
       ),
       'detail' => array(
         'label' => 'above',
@@ -1960,7 +2007,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 10,
+        'weight' => 11,
       ),
       'detail' => array(
         'label' => 'above',
@@ -2015,7 +2062,7 @@ Use increments of 10, so that you can easily fit in additional visuals in betwee
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 11,
+        'weight' => 12,
       ),
       'detail' => array(
         'label' => 'above',

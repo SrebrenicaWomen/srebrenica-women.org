@@ -49,7 +49,7 @@ function exhibition_content_node_info() {
       'base' => 'node_content',
       'description' => t('A content page for background information or other content.'),
       'has_title' => '1',
-      'title_label' => t('Title'),
+      'title_label' => t('Internal Working Title'),
       'help' => '',
     ),
     'portrait' => array(

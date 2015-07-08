@@ -47,6 +47,7 @@ function exhibition_base_strongarm() {
     'group_main|node|visual|form' => FALSE,
     'group_metadata|node|visual|form' => TRUE,
     'group_options|node|detail|form' => FALSE,
+    'group_options|node|page|form' => FALSE,
   );
   $export['default_field_group'] = $strongarm;
 
@@ -96,6 +97,178 @@ function exhibition_base_strongarm() {
   $strongarm->name = 'filter_fallback_format';
   $strongarm->value = 'plain_text';
   $export['filter_fallback_format'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'imce_profiles';
+  $strongarm->value = array(
+    1 => array(
+      'name' => 'editors',
+      'usertab' => 0,
+      'filesize' => '0',
+      'quota' => '0',
+      'tuquota' => '0',
+      'extensions' => 'jpg png pdf txt zip tiff tif',
+      'dimensions' => '2400x2400',
+      'filenum' => '0',
+      'directories' => array(
+        0 => array(
+          'name' => 'uploads',
+          'subnav' => 0,
+          'browse' => 1,
+          'upload' => 1,
+          'thumb' => 0,
+          'delete' => 1,
+          'resize' => 1,
+        ),
+      ),
+      'thumbnails' => array(
+        0 => array(
+          'name' => 'Small',
+          'dimensions' => '90x90',
+          'prefix' => 'small_',
+          'suffix' => '',
+        ),
+        1 => array(
+          'name' => 'Medium',
+          'dimensions' => '120x120',
+          'prefix' => 'medium_',
+          'suffix' => '',
+        ),
+        2 => array(
+          'name' => 'Large',
+          'dimensions' => '180x180',
+          'prefix' => 'large_',
+          'suffix' => '',
+        ),
+      ),
+    ),
+  );
+  $export['imce_profiles'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'imce_roles_profiles';
+  $strongarm->value = array(
+    6 => array(
+      'weight' => '0',
+      'public_pid' => '1',
+    ),
+    4 => array(
+      'weight' => '0',
+      'public_pid' => '1',
+    ),
+    3 => array(
+      'weight' => '0',
+      'public_pid' => '1',
+    ),
+    5 => array(
+      'weight' => '0',
+      'public_pid' => 0,
+    ),
+    2 => array(
+      'weight' => 11,
+      'public_pid' => 0,
+    ),
+    1 => array(
+      'weight' => 12,
+      'public_pid' => 0,
+    ),
+  );
+  $export['imce_roles_profiles'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'imce_settings_absurls';
+  $strongarm->value = 0;
+  $export['imce_settings_absurls'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'imce_settings_disable_private';
+  $strongarm->value = 1;
+  $export['imce_settings_disable_private'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'imce_settings_replace';
+  $strongarm->value = '0';
+  $export['imce_settings_replace'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'imce_settings_textarea';
+  $strongarm->value = '';
+  $export['imce_settings_textarea'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'imce_settings_thumb_method';
+  $strongarm->value = 'scale_and_crop';
+  $export['imce_settings_thumb_method'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'jquery_update_compression_type';
+  $strongarm->value = 'min';
+  $export['jquery_update_compression_type'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'jquery_update_jquery_cdn';
+  $strongarm->value = 'jquery';
+  $export['jquery_update_jquery_cdn'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'jquery_update_jquery_migrate_cdn';
+  $strongarm->value = 'none';
+  $export['jquery_update_jquery_migrate_cdn'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'jquery_update_jquery_migrate_enable';
+  $strongarm->value = 0;
+  $export['jquery_update_jquery_migrate_enable'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'jquery_update_jquery_migrate_trace';
+  $strongarm->value = 0;
+  $export['jquery_update_jquery_migrate_trace'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'jquery_update_jquery_migrate_warnings';
+  $strongarm->value = 0;
+  $export['jquery_update_jquery_migrate_warnings'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'jquery_update_jquery_version';
+  $strongarm->value = '1.10';
+  $export['jquery_update_jquery_version'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'jquery_update__active_tab';
+  $strongarm->value = 'edit-jquery-migrate';
+  $export['jquery_update__active_tab'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */

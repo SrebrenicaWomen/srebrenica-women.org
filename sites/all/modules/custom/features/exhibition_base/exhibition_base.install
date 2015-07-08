@@ -62,4 +62,14 @@ function exhibition_base_update_7006() {
 }
 
 
+/**
+ * Implementation of hook_update_N().
+ *
+ * Activate imce.module.
+ */
+function exhibition_base_update_7007() {
+  module_enable(array('imce'));
+}
+
+
 // END OF FILE marker.
