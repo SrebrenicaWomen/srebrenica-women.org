@@ -191,6 +191,21 @@ function exhibition_content_entity_view($entity, $type, $view_mode, $langcode) {
     else {
     }
   }
+
+  // Replace content embed code [content:NODE_ID:VIEW_MODE:[LEFT|RIGHT]] with respective content rendering.
+  if (isset($entity->content['field_text'])) {
+    $entity->content['field_text'][0]['#markup'] =
+      preg_replace_callback(
+        '/\[.*\]/U',
+        function ($matches) {
+          @list($embed_code, $embed_id, $embed_viewmode, $embed_layout) = explode(':', substr($matches[0], 1, -1));
+          $embed_layout = empty($embed_layout) ? '' : 'content-embed-' . drupal_html_class($embed_layout);
+          $node_viewed = node_view(node_load($embed_id), $embed_viewmode);
+          return '<div class="content-embed ' . $embed_layout . '">' . render($node_viewed) . '</div>';
+        },
+        $entity->content['field_text'][0]['#markup']
+      );
+  }
 }
 
 

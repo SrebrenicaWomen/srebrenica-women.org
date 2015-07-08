@@ -286,8 +286,24 @@ a {
 
 
 
+/*    C O N T E N T   E M B E D S   */
+.content-embed {
+    margin: 1em 0em;
+    width: 100%;
+    text-align: center;
+}
 
+.content-embed-left {
+    width: auto;
+    float: left;
+    margin-right: 1em;
+}
 
+.content-embed-right {
+    width: auto;
+    float: right;
+    margin-left: 1em;
+}
 
 
 
