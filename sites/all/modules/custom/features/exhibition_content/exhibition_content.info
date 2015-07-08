@@ -49,6 +49,7 @@ features[field_base][] = field_visual_purpose
 features[field_group][] = group_main|node|visual|form
 features[field_group][] = group_my_view|node|portrait|form
 features[field_group][] = group_options|node|detail|form
+features[field_group][] = group_options|node|page|form
 features[field_group][] = group_options|node|portrait|form
 features[field_group][] = group_options|node|visual|form
 features[field_group][] = group_social_networks|node|portrait|form
