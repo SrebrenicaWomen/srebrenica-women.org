@@ -51,6 +51,10 @@ jQuery(document).ready(function($) {
 
             // Add swipeboxing of image-links
             $('.swipebox').swipebox({hideBarsDelay : 0});
+            // Add swipbox triggering via tile image captions.
+            $('.tile .swipebox').parent().children('figcaption').addClass('clickable').click(function() {
+                $(this).parent().children('a').click();
+            });
             // User agent match for android ensures the use of swipebox button navigation.
             if(navigator.userAgent.match(/Android/i)){window.scrollTo(0,1);}
 
