@@ -289,11 +289,24 @@ a {
 
 
 
-/*      P R O F I L E      */
+/*      P O R T R A I T   P A G E      */
 
 .details {
-    margin-bottom: 5em;
     text-align: center;
+}
+
+.timeline-container {
+    width: 100%;
+    padding: 1em 0em;
+    text-align: center;
+}
+
+.timeline-thread {
+    display: inline-block;
+    width: 0px;
+    min-height: 10em;
+    border-right: 2px solid #fff15b;
+    border-left: 2px solid #f84533;
 }
 
 

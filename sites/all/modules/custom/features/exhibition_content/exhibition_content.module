@@ -221,6 +221,13 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
     {
       $visuals = $all_visuals[$epoch_tid];
 
+      // Add timeline thread.
+      if ($epoch_counter) {
+        $build[] = array(
+          '#markup' => '<div class="timeline-container"><span class="timeline-thread"></span></div>',
+        );
+      }
+
       // First, add featured main visual.
       // Either use the one for this epoch, or, if that is empty, get the most recent one not used yet.
       $feature_visual = NULL;
@@ -238,12 +245,14 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
         $build['feature-'.$epoch_tid] = $feature_visual['render'];
       }
 
+
       // Add container for the details of the epoch.
       $build[$epoch_tid] = array(
         '#type' => 'container',
         '#attributes' => array('class' => array('details', 'clearfix')),
       );
-      // Second, add tile for the time epoch.
+
+      // Add tile for the time epoch.
       if (isset($feature_visuals_originals[$epoch_tid])) {
         $feature_visual_caption = reset($feature_visuals_originals[$epoch_tid]['render']['node']);
         $feature_visual_caption = (isset($feature_visual_caption['field_visual_caption']) ? strip_tags($feature_visual_caption['field_visual_caption'][0]['#markup']) : '');
@@ -270,6 +279,8 @@ function exhibition_content_prepare_portrait_full_view($portrait) {
         $render = entity_view('node', array($visual), 'detail');
         $build[$epoch_tid][] = $render;
       }
+
+      // Count up
       $epoch_counter++;
     }
   }
