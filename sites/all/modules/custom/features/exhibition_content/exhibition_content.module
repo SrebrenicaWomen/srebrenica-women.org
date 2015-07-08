@@ -34,12 +34,9 @@ function exhibition_content_form_alter(&$form, &$form_state, $form_id) {
     $form['field_embed_code']['#access'] = FALSE;
   }
 
-  if ('visual_node_form' == $form_id) {
+  if (in_array($form_id, array('visual_node_form', 'page_node_form'))) {
     // Make a 'visual' node's title non-required (auto-filled in hook_entity_presave.
     $form['title']['#required'] = FALSE;
-    // If this is a clone being made, empty the fields that should probably change.
-    if (isset($form['clone_from_original_nid'])) {
-    }
   }
 
   if ('portrait_node_form' == $form_id) {
@@ -151,23 +148,28 @@ function exhibition_content_node_submit($node, $form, &$form_state) {
  */
 function exhibition_content_entity_presave($entity, $type) {
   // Auto-Fill/-Update automated title for 'visual' nodes.
-  if (('node' == $type) && ('visual' == $entity->type) && (('' == trim($entity->title)) || ('@' == $entity->title[0]) || ('Clone of' == substr($entity->title, 0, 8)) )) {
-    $e = entity_metadata_wrapper('node', $entity);
-    $title = array();
-    $title[] = $entity->field_parent_content[LANGUAGE_NONE] ? $e->field_parent_content->title->value() : NULL;
-    $title[] = $entity->field_epoch[LANGUAGE_NONE]          ? $e->field_epoch->name->value() : NULL;
-    $title[] = $entity->field_visual_purpose[LANGUAGE_NONE] ? $e->field_visual_purpose->value() : NULL;
-    $title[] = $entity->field_image_file[LANGUAGE_NONE]     ? $e->field_image_file->file->name->value() : NULL;
-    $title[] = $entity->field_video_file[LANGUAGE_NONE]     ? $e->field_video_file->file->name->value() : NULL;
-    //$title[] = $e->field_priority->value();
-    //$entity->title = '@' . trim(implode(' | ', $title));
-    $entity->title = '@' . array_reduce($title, function($carry, $item) {
-        if ($item) {
-          $carry = $carry ? $carry . ' | ' : '';
-          $carry .= $item;
-        }
-        return $carry;
-      });
+  $e = entity_metadata_wrapper('node', $entity);
+  if ('node' == $type) {
+    // Derive title for "visual" nodes.
+    if (('visual' == $entity->type) && (('' == trim($entity->title)) || ('@' == $entity->title[0]) || ('Clone of' == substr($entity->title, 0, 8)) )) {
+      $title = array();
+      $title[] = $entity->field_parent_content[LANGUAGE_NONE] ? $e->field_parent_content->title->value() : NULL;
+      $title[] = $entity->field_epoch[LANGUAGE_NONE]          ? $e->field_epoch->name->value() : NULL;
+      $title[] = $entity->field_visual_purpose[LANGUAGE_NONE] ? $e->field_visual_purpose->value() : NULL;
+      $title[] = $entity->field_image_file[LANGUAGE_NONE]     ? $e->field_image_file->file->name->value() : NULL;
+      $title[] = $entity->field_video_file[LANGUAGE_NONE]     ? $e->field_video_file->file->name->value() : NULL;
+      $entity->title = '@' . array_reduce($title, function($carry, $item) {
+          if ($item) {
+            $carry = $carry ? $carry . ' | ' : '';
+            $carry .= $item;
+          }
+          return $carry;
+        });
+    }
+    // Derive title for "page" nodes.
+    if (  ('page' == $entity->type)  &&  ('' == trim($entity->title))  ) {
+      $entity->title = $e->field_headline->value();
+    }
   }
 }
 
