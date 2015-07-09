@@ -107,7 +107,9 @@ function exhibition_preprocess_node(&$vars, $hook) {
     if ('detail' == $view_mode) {
       unset($vars['tile_title']);
       // Truncate the hover caption in length.
-      $vars['tile_caption'] = truncate_utf8($vars['tile_caption'], 100, TRUE, TRUE, 20);
+      $tile_caption_trunc = truncate_utf8($vars['tile_caption'], 330, TRUE, TRUE, 20);
+      if ($tile_caption_trunc != $vars['tile_caption']) { $tile_caption_trunc .= ' (' . t('More') . '&nbsp;&#x21E2;)'; }
+      $vars['tile_caption'] = $tile_caption_trunc;
       // Swipebox the image.
       $image_path = $node->field_image_file[LANGUAGE_NONE][0]['uri'];
       $image_full_path = image_style_url('full', $image_path);
