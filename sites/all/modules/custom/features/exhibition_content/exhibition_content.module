@@ -120,7 +120,9 @@ function exhibition_content_node_submit($node, $form, &$form_state) {
         if ($language->enabled) {
           $el_sub_key = $el_key . ':' . $lang_key;
           $value = $form_state['values'][$el_sub_key];
-          $value = check_plain($value);
+          // Don't use check_plain here, but in the output, since it screws up the editing with escaped htmlentites.
+          // But we do filter_xss here for security.
+          $value = filter_xss($value);
           $node->{$field_name}[$lang_key][0]['value'] = $value;
           if (trim($value) && !isset($node->translations->data[$lang_key])) {
             $node->translations->data[$lang_key] = array(
