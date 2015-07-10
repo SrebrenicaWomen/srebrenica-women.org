@@ -14,9 +14,6 @@ body {
 body, p, a {
     color: #002;
 }
-.page-header, .page-footer {
-    text-align: center;
-}
 h1, h2, h3 {
     font-family: Raleway, Verdana, Arial, Helvetica, sans-serif;
 }
@@ -44,11 +41,24 @@ h2 {
     display: none;
 }
 
-.blurb p {
+.page-header, .page-footer {
+    text-align: center;
+}
+.page-footer {
+    background: #555;
+    font-size: 12px;
+    column-count: 3;
+    -moz-column-count: 3;
+    -webkit-column-count: 3;
+}
+.page-footer p,
+.page-footer a
+{
+    color: #ccc;
     margin: 0.5em 0 1em;
 }
 .blurb .follow {
-    display: inline-block;
+    /*display: inline-block;*/
 }
 
 .page-header .portrait-navigation {
@@ -88,15 +98,17 @@ a {
 }
 
 
-#content {
+#content,
+#header,
+#footer
+{
     max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
-    padding: 4em;
+    background: white;
 }
-
-.content {
-    /* background: white; */
+#content .node {
+    margin-bottom: 4em;
 }
 
 .language-link {
@@ -281,17 +293,31 @@ a {
 }
 
 
-.node-page          { max-width: 800px; }
+
+/*      T E X T    P A G E S    */
+
+.node-page          { }
+
+.node-page p,
+.node-page h2,
+.node-page h3,
+.node-page blockquote
+                    { max-width: 640px; margin-left: auto; margin-right: auto; }
+
 .node-page h1       { font-size: 40px; color: #fff; background-color: #08B8F1; text-align: center; clear: both; }
-.node-page h2       { font-size: 22px; font-weight: 500; color: #08B8F1; text-align: center; margin: 2.5em 0em 1.25em; clear: both; }
-.node-page h3       { font-size: 120%; font-weight: bold; margin: 1.5em 0em 1.25em; clear: both; }
-.node-page p        { margin: 1.5em 0em; line-height: 2.25em; color: #555; }
+.node-page h2       { font-size: 22px; font-weight: 500; color: #08B8F1; text-align: center; margin-top: 2.5em; margin-bottom 1.25em; clear: both; }
+.node-page h3       { font-size: 120%; font-weight: bold; margin-top: 1.5em; margin-bottom: 1.25em; clear: both; }
+.node-page p        { margin-top: 1.5em; margin-bottom: 1.5em; line-height: 2.25em; color: #555; }
 .node-page p a      { text-decoration: underline; }
+
 .picture-full       { max-width: 100%; height: auto; }
 .content-embed img  { max-width: 100%; height: auto; }
 .node-page .node-visual { font-size: 70%; color: #999; }
-blockquote          { font-style: italic; border-left: 6px solid #ccc; padding-left: 2em; margin-left: 2em; }
-blockquote p        { color: #999; }
+
+blockquote          { margin-top: 2em; margin-bottom: 2em; }
+blockquote p        { font-style: italic; border-left: 6px solid #ccc; margin-left: 20em; margin-right: 0; padding-left: 2em; color: #999; }
+blockquote p:last-of-type { font-style: normal; border-left-color: transparent; }
+blockquote p:last-of-type::before { content: "— "; }
 
 
 /*    C O N T E N T   E M B E D S   */

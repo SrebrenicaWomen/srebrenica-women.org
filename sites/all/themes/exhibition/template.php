@@ -52,6 +52,11 @@ function exhibition_preprocess_node(&$vars, $hook) {
   }
   $vars['tile_class'] = $extra_classes;
 
+  if ('page' == $type) {
+    if ('full' == $view_mode) {
+      unset($vars['content']['field_headline']);
+    }
+  }
 
   // Handle tiles for detail node type.
   if ('detail' == $type) {
