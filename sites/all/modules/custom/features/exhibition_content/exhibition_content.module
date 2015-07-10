@@ -483,6 +483,8 @@ function exhibition_content_get_portrait_navigation() {
 
   $result = $query->execute();
 
+  $current_node = (('node' == arg(0)) && (is_numeric(arg(1)))) ? arg(1) : -1;
+
   if (isset($result['node'])) {
     $nodes = entity_load('node', array_keys($result['node']));
     foreach($nodes as $node) {
@@ -499,6 +501,7 @@ function exhibition_content_get_portrait_navigation() {
             'path' => 'node/' . $parent,
             'options' => array(
               'attributes' => array(
+                'class' => array(($parent == $current_node) ? 'active' : 'inactive'),
                 'title' => '',
               ),
             ),

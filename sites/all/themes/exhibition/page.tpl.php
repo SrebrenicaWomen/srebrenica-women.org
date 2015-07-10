@@ -72,10 +72,7 @@
  */
 ?>
 
-  <div id="header"><div class="section clearfix">
-    <?php //print render($page['header']); ?>
-    <?php include('templates/page-header.tpl.inc'); ?>
-  </div></div> <!-- /.section /#header -->
+  <?php include('templates/page-header.tpl.inc'); ?>
 
   <?php print $messages; ?>
 

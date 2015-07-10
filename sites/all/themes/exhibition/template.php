@@ -1,7 +1,7 @@
 <?php
 
 
-include_once('seven_takeover/seven_template.php');
+// include_once('seven_takeover/seven_template.php');
 
 
 /**
@@ -79,10 +79,11 @@ function exhibition_preprocess_node(&$vars, $hook) {
     $epoch_name = isset($vars['content']['field_epoch']) ? strip_tags($vars['content']['field_epoch'][0]['#markup']) : '';
     $image_caption = isset($vars['content']['field_visual_caption']) ? strip_tags($vars['content']['field_visual_caption'][0]['#markup']) : '';
     $overlay_caption = '';
-    if (!empty($image_caption)) {
+    //if (!empty($image_caption))
+    {
       if ($parent) { $overlay_caption .= $parent->title . ' '; }
       if ($epoch_name) { $overlay_caption .= '(' . $epoch_name . ') '; }
-      if (!empty($overlay_caption)) { $overlay_caption .= ' - '; }
+      if (!empty($image_caption) && !empty($overlay_caption)) { $overlay_caption .= ' - '; }
       $overlay_caption .= $image_caption;
     }
 
@@ -205,5 +206,14 @@ function exhibition_image($variables) {
 
   return '<img' . drupal_attributes($attributes) . ' />';
 }
+
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function exhibition_preprocess_html(&$variables) {
+  drupal_add_css('http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css', array('type' => 'external'));
+}
+
 
 // END OF FILE marker.

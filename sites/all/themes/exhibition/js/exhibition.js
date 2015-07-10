@@ -58,6 +58,60 @@ jQuery(document).ready(function($) {
             // User agent match for android ensures the use of swipebox button navigation.
             if(navigator.userAgent.match(/Android/i)){window.scrollTo(0,1);}
 
+
+
+            // Auto-hide header nav bar
+            // Source: https://medium.com/@mariusc23/hide-header-on-scroll-down-show-on-scroll-up-67bbaae9a78c
+            // Hide Header on on scroll down, auto-show on scroll-up
+            Drupal.autoHideHeader = {};
+            Drupal.autoHideHeader.didScroll;
+            Drupal.autoHideHeader.lastScrollTop = 0;
+            Drupal.autoHideHeader.delta = 25;
+//            var navbarHeight = $('header').outerHeight();
+
+//            $('.header-spacer').css('height', $('header').outerHeight());
+
+            $(window).scroll(function(event){
+                Drupal.autoHideHeader.didScroll = true;
+            });
+
+            $(window).resize(function(event){
+                hasScrolled();
+            });
+
+            setInterval(function() {
+                if (Drupal.autoHideHeader.didScroll) {
+                    hasScrolled();
+                    Drupal.autoHideHeader.didScroll = false;
+                }
+            }, 1000);
+
+            function hasScrolled() {
+                var navbarHeight = $('header').outerHeight();
+                $('.header-spacer').css('height', navbarHeight);
+
+                var st = $(this).scrollTop();
+
+                // Make sure they scroll more than Drupal.autoHideHeader.delta
+                if(Math.abs(Drupal.autoHideHeader.lastScrollTop - st) <= Drupal.autoHideHeader.delta)
+                    return;
+
+                // If they scrolled down and are past the navbar, add class .nav-up.
+                // This is necessary so you never see what is "behind" the navbar.
+                if (st > Drupal.autoHideHeader.lastScrollTop && st > navbarHeight){
+                    // Scroll Down
+                    $('header').removeClass('nav-down').addClass('nav-up');
+                } else {
+                    // Scroll Up
+                    if(st + $(window).height() < $(document).height()) {
+                        $('header').removeClass('nav-up').addClass('nav-down');
+                    }
+                }
+
+                Drupal.autoHideHeader.lastScrollTop = st;
+            }
+
+            hasScrolled();
         }
     }
 
