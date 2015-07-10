@@ -77,8 +77,12 @@ ul {
 }
 
 .language-switcher {
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.75);
     position: absolute;
     right: 1em;
+    font-weight: bold;
+    font-family: Raleway, Arial, Helvetica, sans-serif;
 }
 .language-switcher a {
     padding-left: 1em;
@@ -106,6 +110,14 @@ a {
     margin-left: auto;
     margin-right: auto;
     background: white;
+}
+#content p,
+#content h2,
+#content h3,
+#content blockquote
+{
+    padding-left: 1em;
+    padding-right: 1em;
 }
 #content .node {
     margin-bottom: 4em;
