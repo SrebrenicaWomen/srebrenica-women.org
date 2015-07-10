@@ -281,9 +281,17 @@ a {
 }
 
 
-
-
-
+.node-page          { max-width: 800px; }
+.node-page h1       { font-size: 40px; color: #fff; background-color: #08B8F1; text-align: center; clear: both; }
+.node-page h2       { font-size: 22px; font-weight: 500; color: #08B8F1; text-align: center; margin: 2.5em 0em 1.25em; clear: both; }
+.node-page h3       { font-size: 120%; font-weight: bold; margin: 1.5em 0em 1.25em; clear: both; }
+.node-page p        { margin: 1.5em 0em; line-height: 2.25em; color: #555; }
+.node-page p a      { text-decoration: underline; }
+.picture-full       { max-width: 100%; height: auto; }
+.content-embed img  { max-width: 100%; height: auto; }
+.node-page .node-visual { font-size: 70%; color: #999; }
+blockquote          { font-style: italic; border-left: 6px solid #ccc; padding-left: 2em; margin-left: 2em; }
+blockquote p        { color: #999; }
 
 
 /*    C O N T E N T   E M B E D S   */

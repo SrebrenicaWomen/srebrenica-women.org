@@ -22,7 +22,7 @@ function exhibition_base_filter_default_formats() {
         'weight' => -49,
         'status' => 1,
         'settings' => array(
-          'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd> <div> <p> <h2> <h3> <img> <drupal-entity>',
+          'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd> <div> <p> <h1> <h2> <h3> <img> <drupal-entity>',
           'filter_html_help' => 1,
           'filter_html_nofollow' => 0,
         ),

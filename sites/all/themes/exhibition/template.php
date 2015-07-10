@@ -62,6 +62,7 @@ function exhibition_preprocess_node(&$vars, $hook) {
 
   // Handle tiles for visual node type.
   if (in_array($type, array('visual'/*, 'detail'*/))) {
+    $vars['title'] = NULL;
 
     // Replace title with parent content's title.
     $parent = FALSE;
