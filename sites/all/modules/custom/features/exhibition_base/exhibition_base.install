@@ -72,4 +72,17 @@ function exhibition_base_update_7007() {
 }
 
 
+/**
+ * Clear some obsolete fields.
+ */
+function exhibition_base_update_7008() {
+  field_delete_field('field_visual_layout');
+  field_delete_field('field_my_view');
+  field_delete_field('field_embed_code');
+  field_delete_field('field_portrait_layout');
+  field_delete_field('field_visual');
+  field_delete_field('field_social_network_profiles');
+}
+
+
 // END OF FILE marker.
