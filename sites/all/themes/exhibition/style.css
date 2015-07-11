@@ -583,7 +583,7 @@ img.lazy-waiting {
 /*     R E S P O N S I V E N E S S      */
 
 
-@media screen and (max-width: 759px) {
+@media screen and (max-width: 48em) {
     .tile figure img {
                 transform: translateY(0px) scale(1) !important;
             -ms-transform: translateY(0px) scale(1) !important;
@@ -594,12 +594,27 @@ img.lazy-waiting {
     .teaser-big figure img { width: 120px; height: 120px; }
     .viewmode-teaser, .viewmode-teaser img { width: 60px; height: 60px; font-size: 75%; }
 
-    .viewmode-detail, .viewmode-detail img { max-height: 80px; }
+
+
+
+    .viewmode-detail, .viewmode-detail img { max-height: 160px; font-size: 75%; }
     .viewmode-detail figcaption { display: none; }
 
-    .info-tile figcaption { height: 80px; width: 80px; }
-    .info-tile figcaption .field-title { font-size: 80%; }
+    .info-tile figcaption { height: 160px; width: 160px; }
     .info-tile figcaption .field-caption { display: none; }
+
+    .viewmode-detail.tile-style-3 figcaption { display: none; }
+    .viewmode-detail figure img {
+        transform: translateY(0px) scale(1) !important;
+        -ms-transform: translateY(0px) scale(1) !important;
+        -moz-transform: translateY(0px) scale(1) !important;
+        -webkit-transform: translateY(0px) scale(1) !important;
+    }
+
+
+
+
+
 
     .viewmode-feature .field-caption { display: none; }
 
@@ -618,9 +633,11 @@ img.lazy-waiting {
            -moz-column-count: 2;
         -webkit-column-count: 2;
     }
+
+    nav.portraits img { width: 56px; height: 56px; }
 }
 
-@media screen and (max-width: 511px) {
+@media screen and (max-width: 32em) {
     .columns {
         column-count: 1;
         -moz-column-count: 1;
@@ -628,7 +645,7 @@ img.lazy-waiting {
     }
 }
 
-@media screen and (min-width: 760px) and (max-width: 1199px) {
+@media screen and (min-width: 48em) and (max-width: 75em) {
     .teaser-big figure img { width: 200px; height: 200px; }
     .viewmode-teaser img { width: 100px; height: 100px; }
     .viewmode-detail, .viewmode-detail img { max-height: 200px; font-size: 75%; }
@@ -655,7 +672,7 @@ img.lazy-waiting {
     .tile .tile-info { padding: 0.5em; }
 }
 
-@media screen and (min-width: 1200px) {
+@media screen and (min-width: 75em) {
     .teaser-big figure img { height: 250px; width: 250px; }
     .viewmode-teaser, .viewmode-teaser img { height: 125px; width: 125px; }
     .viewmode-detail, .viewmode-detail img { max-height: 300px; font-size: 100%; }
