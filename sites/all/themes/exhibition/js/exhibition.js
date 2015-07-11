@@ -35,32 +35,12 @@ jQuery(document).ready(function($) {
     Drupal.behaviors.dsbox = {
         attach: function (context, settings) {
 
-            // Initialize packery layout.
-            $('.tiles').packery({
-                itemSelector: '.tile',
-                gutter: 0
-            });
-
-            // Add lazy loading for tile images
-            $("img").unveil(100, function() {
-                $(this).load(function() {
-                    $(this).removeClass('lazy-waiting');
-                    $(this).addClass('lazy-loaded');
-                });
-            });
-
-            // Add swipeboxing of image-links
-            $('.swipebox').swipebox({hideBarsDelay : 0});
-            // Add swipbox triggering via tile image captions.
-            $('.tile .swipebox').parent().children('figcaption').addClass('clickable').click(function() {
-                $(this).parent().children('a').click();
-            });
-            // User agent match for android ensures the use of swipebox button navigation.
-            if(navigator.userAgent.match(/Android/i)){window.scrollTo(0,1);}
-
 
 
             // Auto-hide header nav bar
+            // -------------------------------
+
+
             // Source: https://medium.com/@mariusc23/hide-header-on-scroll-down-show-on-scroll-up-67bbaae9a78c
             // Hide Header on on scroll down, auto-show on scroll-up
             Drupal.autoHideHeader = {};
@@ -111,7 +91,49 @@ jQuery(document).ready(function($) {
                 Drupal.autoHideHeader.lastScrollTop = st;
             }
 
+
+
+            // Initialize packery layout.
+            // ---------------------------------
+
+            $('.tiles').packery({
+                itemSelector: '.tile',
+                gutter: 0
+            });
+
+
+
+            // Add lazy loading for tile images
+            // ---------------------------------
+
+            $("img").unveil(100, function() {
+                $(this).load(function() {
+                    $(this).removeClass('lazy-waiting');
+                    $(this).addClass('lazy-loaded');
+                });
+            });
+
+
+
+            // Add swipeboxing of image-links
+            // ---------------------------------
+
+            $('.swipebox').swipebox({hideBarsDelay : 0});
+            // Add swipbox triggering via tile image captions.
+            $('.tile .swipebox').parent().children('figcaption').addClass('clickable').click(function() {
+                $(this).parent().children('a').click();
+            });
+            // User agent match for android ensures the use of swipebox button navigation.
+            if(navigator.userAgent.match(/Android/i)){window.scrollTo(0,1);}
+
+
+
+            // Adjust menu bar placer
+            // ---------------------------------
+
             hasScrolled();
+
+
         }
     }
 
