@@ -35,6 +35,7 @@ function exhibition_preprocess_node(&$vars, $hook) {
   $type = $vars['type'];
   $view_mode = $vars['view_mode'];
   $vars['tile_anchor'] = $node->nid;
+  $vars['tile_attributes'] = '';
 
   // Make view mode specific template suggestions.
   $vars['theme_hook_suggestions'][] = 'node__viewmode__' . $view_mode;
@@ -131,6 +132,7 @@ function exhibition_preprocess_node(&$vars, $hook) {
     // For feature view mode, use tile style 2 (title+caption static with floor fade).
     else if ('feature' == $view_mode) {
       $vars['tile_style'] = 2;
+      $vars['tile_attributes'] .= ' data-stellar-ratio="0.66" ';
     }
     // For everything else...
     else {

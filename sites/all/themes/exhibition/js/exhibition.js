@@ -134,6 +134,10 @@ jQuery(document).ready(function($) {
             hasScrolled();
 
 
+            // Activate parallaxe scrolling of some elements via stellar.js
+            //$.stellar({ horizontalScrolling: false, verticalScrolling: true});
+
+
         }
     }
 

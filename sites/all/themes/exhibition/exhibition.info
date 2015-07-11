@@ -15,6 +15,7 @@ stylesheets[screen][] = style.css
 scripts[] = js/modernizr.custom.js
 scripts[] = js/jquery.unveil.js
 scripts[] = js/packery.pkgd.min.js
+;scripts[] = js/jquery.stellar.min.js
 scripts[] = js/exhibition.js
 scripts[] = swipebox/jquery.swipebox.min.js
 
