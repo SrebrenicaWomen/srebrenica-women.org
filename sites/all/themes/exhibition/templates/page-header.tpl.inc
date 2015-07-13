@@ -26,6 +26,7 @@
       <?php print l(t('About',    array(), array('context' => 'menu')), 'node/295'); ?>
       <?php print l(t('Press',    array(), array('context' => 'menu')), 'node/303'); ?>
       <?php print l(t('Friends',  array(), array('context' => 'menu')), 'node/304'); ?>
+      <?php print l(t('Blog',     array(), array('context' => 'menu')), 'node/375'); ?>
     </nav>
     <nav class="portraits">
       <?php if (function_exists('exhibition_content_get_portrait_navigation')) { $thumbs = exhibition_content_get_portrait_navigation(); print render($thumbs); } ?>
