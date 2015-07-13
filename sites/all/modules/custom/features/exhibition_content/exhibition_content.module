@@ -479,6 +479,7 @@ function exhibition_content_get_portrait_navigation() {
     ->propertyCondition('status', NODE_PUBLISHED)
     //->propertyCondition('promote', NODE_PROMOTED)
     ->fieldCondition('field_visual_purpose', 'value', 'featured')
+    ->propertyOrderBy('created', 'DESC')
     ->range(0, 200);
 
   $result = $query->execute();
@@ -488,29 +489,42 @@ function exhibition_content_get_portrait_navigation() {
   if (isset($result['node'])) {
     $nodes = entity_load('node', array_keys($result['node']));
     foreach($nodes as $node) {
-      $parent = isset($node->field_parent_content[LANGUAGE_NONE][0]['target_id']) ? $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] : 0;
-      if (!isset($build[$parent]) && isset($node->field_image_file[LANGUAGE_NONE])) {
-        $file = $node->field_image_file[LANGUAGE_NONE][0]['uri'];
-        $build[$parent] = array(
-          '#theme' => 'image_formatter',
-          '#image_style' => 'teaser_square_tiny',
-          '#item' => array(
-            'uri' => $file,
-          ),
-          '#path' => array(
-            'path' => 'node/' . $parent,
-            'options' => array(
-              'attributes' => array(
-                'class' => array(($parent == $current_node) ? 'active' : 'inactive'),
-                'title' => '',
+      if ($parent_id = isset($node->field_parent_content[LANGUAGE_NONE][0]['target_id']) ? $node->field_parent_content[LANGUAGE_NONE][0]['target_id'] : 0) {
+        $parent_node = node_load($parent_id);
+        $parent_key = isset($parent_node->field_priority) ? $parent_node->field_priority[LANGUAGE_NONE][0]['value'] : 0;
+        $parent_key = str_pad($parent_key, 10, '0', STR_PAD_LEFT) . '-' . str_pad($parent_node->nid, 10, '0', STR_PAD_LEFT);
+
+      // Set this visual node as portrait navigation thumbnail for this parent, if
+        // either no visual has been chosen yet for that portrait parent
+        // or this visual is from the most current epoch.
+        if (   (!isset($build[$parent_key]) && isset($node->field_image_file[LANGUAGE_NONE]))
+               ||
+               (isset($node->field_epoch[LANGUAGE_NONE]) && (EXHIBITION_BASE_ID_EPOCH_MOST_RECENT == $node->field_epoch[LANGUAGE_NONE][0]['tid']))
+        ) {
+          $file = $node->field_image_file[LANGUAGE_NONE][0]['uri'];
+          $build[$parent_key] = array(
+            'node' => $node,
+            '#theme' => 'image_formatter',
+            '#image_style' => 'teaser_square_tiny',
+            '#item' => array(
+              'uri' => $file,
+            ),
+            '#path' => array(
+              'path' => 'node/' . $parent_id,
+              'options' => array(
+                'attributes' => array(
+                  'class' => array(($parent_id == $current_node) ? 'active' : 'inactive'),
+                  'title' => '',
+                ),
               ),
             ),
-          ),
-        );
+          );
 
+        }
       }
     }
   }
+  ksort($build);
   return $build;
 }
 
